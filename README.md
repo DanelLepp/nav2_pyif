@@ -7,4 +7,6 @@
 ## Startup
 
 open a new terminal: <br/>
+```source /opt/ros/humble/setup.bash```
+```source install/setup.bash```
 ```ros2 run my_package my_node```
