@@ -25,231 +25,71 @@ https://docs.python.org/3/c-api/arg.html#arg-parsing
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
-#include "msgs.hpp"
+#include "py_wrapper_geometry_msgs.hpp"
+#include "py_wrapper_nav2_plugins.hpp"
 
-PyObject* AttachDataToPyMessage(std_msgs::msg::String ros_message) {
-  // passing data to Python std_msg struct
-  PyObject* pymessage_module = PyImport_ImportModule("std_msgs.msg._string");
-  PyObject* pymessage_class = PyObject_GetAttrString(pymessage_module, "String");
-  PyObject* pymessage = PyObject_CallObject(pymessage_class, NULL);
+geometry_msgs::msg::PoseStamped AssemblePoseStamped() {
+  std_msgs::msg::Header header = std_msgs::msg::Header();
+  // header.stamp = 
+  header.frame_id = "kanahakkliha";
 
-  std::string data = ros_message.data;
-  PyObject* field = PyUnicode_DecodeUTF8(data.c_str(), data.length(), "strict");
+  geometry_msgs::msg::Point point = geometry_msgs::msg::Point();
+  point.x = 10.0;
+  point.y = 23.0;
+  point.z = 3.0;
 
-  PyObject_SetAttrString(pymessage, "data", field);
+  geometry_msgs::msg::Quaternion orientation = geometry_msgs::msg::Quaternion();
+  orientation.x = 1.0;
+  orientation.y = 2.0;
+  orientation.z = 3.0;
+  orientation.w = 0.0;
 
-  return pymessage;
+  geometry_msgs::msg::Pose pose = geometry_msgs::msg::Pose();
+  pose.orientation = orientation;
+  pose.position = point;
+
+  geometry_msgs::msg::PoseStamped poseStamped = geometry_msgs::msg::PoseStamped();
+  poseStamped.header = header;
+  poseStamped.pose = pose;
+
+  return poseStamped;
 }
 
-PyObject* RunEmbeddedMethodWithArgs(PyObject* pymessage) {
-  PyObject* pName = PyUnicode_FromString("py_package.py_package");
-  PyObject* pModule = PyImport_Import(pName);
-  PyObject* pFunc = PyObject_GetAttrString(pModule, "Concatenate");
-  PyObject* pArgs = PyTuple_New(1);
+geometry_msgs::msg::Twist AssembleTwist() {
+  geometry_msgs::msg::Vector3 vectorA = geometry_msgs::msg::Vector3();
+  vectorA.x = 11.0;
+  vectorA.y = 22.0;
+  vectorA.z = 33.0;
 
-  PyTuple_SetItem(pArgs, 0, pymessage);
+  geometry_msgs::msg::Vector3 vectorB = geometry_msgs::msg::Vector3();
+  vectorB.x = 0.11;
+  vectorB.y = 0.22;
+  vectorB.z = 0.33;
 
-  PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+  geometry_msgs::msg::Twist twist = geometry_msgs::msg::Twist();
+  twist.linear = vectorA;
+  twist.angular = vectorB;
 
-  return pValue;
+  return twist;
 }
 
-std::string ConvertPyMessageToCPPmessage(PyObject* pValue) {
-  PyObject* field = PyObject_GetAttrString(pValue, "data");
-  PyObject* encoded_field = PyUnicode_AsUTF8String(field);
-  std::string ret = PyBytes_AS_STRING(encoded_field);
-  
-  return ret;
-}
+geometry_msgs::msg::TwistStamped ComputeVelocity() {
+  geometry_msgs::msg::PoseStamped poseStamped = AssemblePoseStamped();
+  geometry_msgs::msg::Twist twist = AssembleTwist();
+  PyWrapper::Nav2Plugins plugins = PyWrapper::Nav2Plugins();
 
-void importingNumpy() {
-  PyRun_SimpleString("import numpy");
-}
+  auto start = std::chrono::system_clock::now();
+  geometry_msgs::msg::TwistStamped twistStamped = plugins.ComputeVelocity(poseStamped, twist);
+  auto end = std::chrono::system_clock::now();
 
-PyObject* setPyTuple() 
-{
-  /* Objects all initialized to NULL for Py_XDECREF */
-  PyObject *geometry_msgs_module1 = NULL, *pose_stamped_instance = NULL, *pose_instance = NULL, *point_instance = NULL,
-    *pose_stamped_class = NULL, *pose_class = NULL, *point_class = NULL;
+  std::cout << "Wrapper function call time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << '\n';
 
-  geometry_msgs_module1 = PyImport_ImportModule("geometry_msgs.msg"); // _pose_stamped.py was the actual file
-  if (geometry_msgs_module1 == NULL) {
-    std::cout << "geometry_msgs_module == NULL" << std::endl;
-  }
-
-  //geometry_msgs_module();
-  geometry_msgs::msg::Point point_cpp = geometry_msgs::msg::Point();
-  point_cpp.x = 10.0;
-  point_cpp.y = 2.0;
-  point_cpp.z = 3.0;
-
-  geometry_msgs_wrapper GeoMetryMsgWrapper = geometry_msgs_wrapper();;
-  PyObject* point_py = GeoMetryMsgWrapper.From_CppPoint(point_cpp);
-
-  if (point_py == NULL) {
-    std::cout << "pointClass == NULL" << std::endl;
-    return NULL;
-  }
-
-  // std_msgs::msg::Header header_cpp = std_msgs::msg::Header();
-  // header_cpp.seq = 30;
-  // point_class = PyObject_GetAttrString(geometry_msgs_module1, "Point");  //class
-  // if (point_class == NULL) {
-  //   std::cout << "pointClass == NULL" << std::endl;
-  //   return NULL;
-  // }
-
-  // PyObject *pointKeyWords = PyDict_New();
-  // PyDict_SetItemString(pointKeyWords, "x", PyFloat_FromDouble(1.0));
-  // PyDict_SetItemString(pointKeyWords, "y", PyFloat_FromDouble(2.0));
-  // PyDict_SetItemString(pointKeyWords, "z", PyFloat_FromDouble(3.0));
-  // // PyObject *pointArgs= PyTuple_New(3);
-  // // PyTuple_SetItem(pointArgs, 0, Py_BuildValue("X"));
-  // // PyTuple_SetItem(pointArgs, 1, Py_BuildValue("Y"));
-  // // PyTuple_SetItem(pointArgs, 2, Py_BuildValue("Z"));
-  // point_instance = PyObject_CallObject(point_class, NULL);  //class
-  // //point_instance = PyObject_VectorcallDict(point_class, 3, );
-  // //point_instance = PyObject_CallObject(point_class, PyTuple_Pack(1.0, 2.0, 3.0));
-  // if (point_instance == NULL) {
-  //   std::cout << "point_instance == NULL" << std::endl;
-  //   return NULL;
-  // }
-  // else {
-  //   std::cout << "point_init" << std::endl;
-  //   PyObject_SetAttrString(point_instance, "_x", PyFloat_FromDouble(1.0));
-  //   PyObject_SetAttrString(point_instance, "_y", PyFloat_FromDouble(2.0));
-  //   PyObject_SetAttrString(point_instance, "_z", PyFloat_FromDouble(3.0));
-  //   //PyObject_CallMethodObjArgs(point_instance, PyObject_GetAttrString(point_instance, "__init__"), pointKeyWords, NULL);
-  // }
-
-  // pose_class = PyObject_GetAttrString(geometry_msgs_module1, "Pose");  //class
-  // if (pose_class == NULL) {
-  //   std::cout << "poseClass == NULL" << std::endl;
-  //   return NULL;
-  // }
-  // pose_instance = PyObject_CallObject(pose_class, point.Ptr());
-
-
-  // pose_stamped_class = PyObject_GetAttrString(geometry_msgs_module1, "PoseStamped");  //class
-  // if (pose_stamped_class == NULL) {
-  //   std::cout << "poseStampedClass == NULL" << std::endl;
-  //   return NULL;
-  // }
-  // pose_stamped_instance = PyObject_CallObject(pose_stamped_class, pose_instance);
-
-
-  PyObject *pName = NULL, *pModule = NULL, *pFunc = NULL, *pArgs = NULL, *pValue = NULL;
-
-  pName = PyUnicode_FromString("py_package.py_package");
-  if (pName == NULL) {
-    std::cout << "pName == NULL" << std::endl;
-    return NULL;
-  }
-
-  pModule = PyImport_Import(pName);
-  Py_XDECREF(pName);
-  if (pModule == NULL) {
-    std::cout << "pModule == NULL" << std::endl;
-    return NULL;
-  }
-
-  pFunc = PyObject_GetAttrString(pModule, "ComputeVelocity");
-  Py_XDECREF(pModule);
-  if (pFunc == NULL) {
-    std::cout << "pFunc == NULL" << std::endl;
-    return NULL;
-  }
-
-  pArgs = PyTuple_New(1);
-  if (pArgs == NULL) {
-    std::cout << "pArgs == NULL" << std::endl;
-    return NULL;
-  }
-
-  int tuple = PyTuple_SetItem(pArgs, 0, point_py);
-  if (tuple < 0) {
-    std::cout << "set tuple failed" << std::endl;
-    return NULL;
-  }
-
-  pValue = PyObject_CallObject(pFunc, pArgs);
-  Py_XDECREF(pArgs);
-  if (pValue == NULL) {
-    std::cout << "pValue == NULL" << std::endl;
-    return NULL;
-  }
-
-  return NULL;
-}
-
-PyObject* callComputeVelocity(PyObject* poseStamped) {
-  /* Objects all initialized to NULL for Py_XDECREF */
-  PyObject *pName = NULL, *pModule = NULL, *pFunc = NULL, *pArgs = NULL, *pValue = NULL;
-
-  pName = PyUnicode_FromString("py_package.py_package");
-  if (pName == NULL) {
-    std::cout << "pName == NULL" << std::endl;
-    return NULL;
-  }
-
-  pModule = PyImport_Import(pName);
-  Py_XDECREF(pName);
-  if (pModule == NULL) {
-    std::cout << "pModule == NULL" << std::endl;
-    return NULL;
-  }
-
-  pFunc = PyObject_GetAttrString(pModule, "ComputeVelocity");
-  Py_XDECREF(pModule);
-  if (pFunc == NULL) {
-    std::cout << "pFunc == NULL" << std::endl;
-    return NULL;
-  }
-
-  pArgs = PyTuple_New(1);
-  if (pArgs == NULL) {
-    std::cout << "pArgs == NULL" << std::endl;
-    return NULL;
-  }
-
-  int tuple = PyTuple_SetItem(pArgs, 0, poseStamped);
-  if (tuple < 0) {
-    std::cout << "set tuple failed" << std::endl;
-    return NULL;
-  }
-
-  pValue = PyObject_CallObject(pFunc, pArgs);
-  Py_XDECREF(pArgs);
-  if (pValue == NULL) {
-    std::cout << "pValue == NULL" << std::endl;
-    return NULL;
-  }
-
-  return pValue;
+  return twistStamped;
 }
 
 int main() {
   Py_Initialize();
-  PyRun_SimpleString("import os");
-  PyRun_SimpleString("print(os.path.abspath(os.getcwd()))" );
-  PyRun_SimpleString("from py_package import py_package" );
-  //importingNumpy();
-  auto message = std_msgs::msg::String();
-  message.data = "Hello ";
-  
-  // PyObject* pymessage = AttachDataToPyMessage(message);
-  // PyObject* pValue = RunEmbeddedMethodWithArgs(pymessage);
-  // message.data = ConvertPyMessageToCPPmessage(pValue);
-  // std::cout << message.data << std::endl;
-
-  PyObject* pyPoseStamped = setPyTuple();
-  if (pyPoseStamped == NULL) {
-    std::cout << "pyPoseStamped == NULL" << std::endl;
-  }
-  else {
-    //callComputeVelocity(pyPoseStamped);
-  }
-  
+  ComputeVelocity();
   Py_Finalize();
   return 0;
 }
