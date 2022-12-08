@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(PythonLibs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -19,7 +19,7 @@ find_package(PythonLibs REQUIRED)
 
 add_executable(my_node src/my_node.cpp)
 
-ament_target_dependencies(my_node rclcpp std_msgs PythonLibs)
+ament_target_dependencies(my_node rclcpp std_msgs PythonLibs geometry_msgs)
 
 target_include_directories(my_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
