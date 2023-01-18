@@ -14,17 +14,24 @@
   <depend>nav2_util</depend>
   <depend>nav2_costmap_2d</depend>
   <depend>rclcpp</depend>
-  <depend>geometry_msgs</depend>
+  <depend>rclcpp_action</depend>
+  <depend>rclcpp_lifecycle</depend>  
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>nav2_msgs</depend>
-  <depend>plugin_lib</depend>
-  <depend>tf2</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>builtin_interfaces</depend>
+  <depend>tf2_ros</depend>
+  <depend>pluginlib</depend>
+  <depend>PythonLibs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>nav2_controller</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
+    <nav2_core plugin="${prefix}/nav2_apf_controller.xml" />
   </export>
 </package>

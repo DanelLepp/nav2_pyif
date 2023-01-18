@@ -3,25 +3,25 @@
 
 #include "python3.10/Python.h"
 
+#include "std_msgs.hpp"
+
+#define Py_DEBUG
+#define PY_SSIZE_T_CLEAN
 
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/header.hpp"
-#include "nav_msgs/msg/odometry.hpp"
-#include "sensor_msgs/msg/laser_scan.hpp"
-#include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "builtin_interfaces/msg/time.hpp"
 
 
 class GeometryMsgs {
     private:
-        PyObject* module_BuiltinInterfaces = NULL;
-        PyObject* module_StandardMsgs = NULL;
         PyObject* module_GeometryMsgs = NULL;
-        
+        StdMsgs* stdMsgs;
 
-    public:
+        static GeometryMsgs* pinstance_;
+        static std::mutex mutex_;
+        
+    protected:
         GeometryMsgs() {
             if (module_GeometryMsgs == NULL) {
                 module_GeometryMsgs = PyImport_ImportModule("geometry_msgs.msg");
@@ -30,49 +30,19 @@ class GeometryMsgs {
                 }
             }
 
-            if (module_BuiltinInterfaces == NULL) {
-                module_BuiltinInterfaces = PyImport_ImportModule("builtin_interfaces.msg");
-                if (module_BuiltinInterfaces == NULL) {
-                    std::cout << "module_BuiltinInterfaces == NULL" << std::endl;
-                }
-            }
-
-            if (module_StandardMsgs == NULL) {
-                module_StandardMsgs = PyImport_ImportModule("std_msgs.msg");
-                if (module_StandardMsgs == NULL) {
-                    std::cout << "module_StandardMsgs == NULL" << std::endl;
-                }
-            }
+            stdMsgs = StdMsgs::GetInstance();
         }
 
         ~GeometryMsgs() {
-            Py_XDECREF(module_BuiltinInterfaces);
-            Py_XDECREF(module_StandardMsgs);
-            Py_XDECREF(module_GeometryMsgs);  
+            Py_XDECREF(module_GeometryMsgs); 
         }
 
-        builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp) {
-            builtin_interfaces::msg::Time cppStamp = builtin_interfaces::msg::Time ();
+    public:
+        GeometryMsgs(GeometryMsgs& other) = delete;
+        void operator=(const GeometryMsgs&) = delete;
 
-            cppStamp.sec = PyLong_AsLong(PyObject_GetAttrString(pyStamp, "_sec"));
-            cppStamp.nanosec = PyLong_AsUnsignedLong(PyObject_GetAttrString(pyStamp, "_nanosec"));
+        static GeometryMsgs* GetInstance();
 
-            return cppStamp;
-        }
-
-        PyObject* PyStamp_FromStamp(builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp = NULL) {
-            if (pyStamp == NULL) {
-                PyObject* time_class = PyObject_GetAttrString(module_BuiltinInterfaces, "Time");
-
-                pyStamp = PyObject_CallObject(time_class, NULL);
-                Py_XDECREF(time_class);
-            }
-            
-            PyObject_SetAttrString(pyStamp, "_sec", PyLong_FromLong(cppStamp.sec));
-            PyObject_SetAttrString(pyStamp, "_nanosec", PyLong_FromUnsignedLong(cppStamp.nanosec));
-            
-            return pyStamp;
-        }
 
         geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* pyVector3) {
             geometry_msgs::msg::Vector3 cppVector3 = geometry_msgs::msg::Vector3();
@@ -84,7 +54,7 @@ class GeometryMsgs {
             return cppVector3;
         }
 
-        PyObject* PyVector3_FromVector3(geometry_msgs::msg::Vector3& cppVector3, PyObject* pyVector3 = NULL) {
+        PyObject* PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cppVector3, PyObject* pyVector3 = NULL) {
             if (pyVector3 == NULL) {
                 PyObject* vector3_class = NULL;
                 vector3_class = PyObject_GetAttrString(module_GeometryMsgs, "Vector3");
@@ -100,29 +70,6 @@ class GeometryMsgs {
             return pyVector3;
         }
 
-        std_msgs::msg::Header PyHeader_AsHeader(PyObject* pyHeader) {
-            std_msgs::msg::Header cppHeader = std_msgs::msg::Header();
-
-            cppHeader.stamp = PyStamp_AsStamp(PyObject_GetAttrString(pyHeader, "_stamp"));
-            cppHeader.frame_id = PyUnicode_AsUTF8(PyObject_GetAttrString(pyHeader, "_frame_id"));
-
-            return cppHeader;
-        }
-
-        PyObject* PyHeader_FromHeader(std_msgs::msg::Header& cppHeader, PyObject* pyHeader = NULL) {
-            if (pyHeader == NULL) {
-                PyObject* header_class = PyObject_GetAttrString(module_StandardMsgs, "Header");
-
-                pyHeader = PyObject_CallObject(header_class, NULL);
-                Py_XDECREF(header_class);
-            }
-
-            PyObject_SetAttrString(pyHeader, "_stamp", PyStamp_FromStamp(cppHeader.stamp, PyObject_GetAttrString(pyHeader, "_stamp")));
-            PyObject_SetAttrString(pyHeader, "_frame_id", PyUnicode_FromString(cppHeader.frame_id.c_str()));
-
-            return pyHeader;
-        }
-
         geometry_msgs::msg::Point PyPoint_AsPoint(PyObject* pyPoint){
             geometry_msgs::msg::Point cppPoint = geometry_msgs::msg::Point();
 
@@ -133,7 +80,7 @@ class GeometryMsgs {
             return cppPoint;
         }
 
-        PyObject* PyPoint_FromPoint(geometry_msgs::msg::Point& cppPoint, PyObject* pyPoint = NULL) {
+        PyObject* PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* pyPoint = NULL) {
             if (pyPoint == NULL) {
                 PyObject* point_class = NULL;
                 point_class = PyObject_GetAttrString(module_GeometryMsgs, "Point");
@@ -160,7 +107,7 @@ class GeometryMsgs {
             return cppOrientation;
         }
 
-        PyObject* PyOrientation_FromOrientation(geometry_msgs::msg::Quaternion& cppOrientation, PyObject* pyOrientation = NULL) {
+        PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cppOrientation, PyObject* pyOrientation = NULL) {
             if (pyOrientation == NULL) {
                 PyObject* quaternion_class = NULL;
                 quaternion_class = PyObject_GetAttrString(module_GeometryMsgs, "Quaternion");
@@ -186,7 +133,7 @@ class GeometryMsgs {
             return cppPose;
         }
 
-        PyObject* PyPose_FromPose(geometry_msgs::msg::Pose& cppPose, PyObject* pyPose = NULL) {
+        PyObject* PyPose_FromPose(const geometry_msgs::msg::Pose& cppPose, PyObject* pyPose = NULL) {
             if (pyPose == NULL) {
                 PyObject* pose_class = NULL;
                 pose_class = PyObject_GetAttrString(module_GeometryMsgs, "Pose");
@@ -205,14 +152,14 @@ class GeometryMsgs {
         geometry_msgs::msg::PoseStamped PyPoseStamped_AsPoseStamped(PyObject* pyPoseStamped){
             geometry_msgs::msg::PoseStamped cppPoseStamped = geometry_msgs::msg::PoseStamped();
 
-            cppPoseStamped.header = PyHeader_AsHeader(PyObject_GetAttrString(pyPoseStamped, "_header"));
+            cppPoseStamped.header = stdMsgs->PyHeader_AsHeader(PyObject_GetAttrString(pyPoseStamped, "_header"));
             cppPoseStamped.pose = PyPose_AsPose(PyObject_GetAttrString(pyPoseStamped, "_pose"));
 
 
             return cppPoseStamped;
         }
 
-        PyObject* PyPoseStamped_FromPoseStamped(geometry_msgs::msg::PoseStamped& cppPoseStamped, PyObject* pyPoseStamped = NULL) {
+        PyObject* PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cppPoseStamped, PyObject* pyPoseStamped = NULL) {
             if (pyPoseStamped == NULL) {
                 PyObject* pose_stamped_class = NULL;
                 pose_stamped_class = PyObject_GetAttrString(module_GeometryMsgs, "PoseStamped");
@@ -221,7 +168,7 @@ class GeometryMsgs {
                 Py_XDECREF(pose_stamped_class);
             }
             
-            PyObject_SetAttrString(pyPoseStamped, "_header", PyHeader_FromHeader(cppPoseStamped.header, PyObject_GetAttrString(pyPoseStamped, "_header")));
+            PyObject_SetAttrString(pyPoseStamped, "_header", stdMsgs->PyHeader_FromHeader(cppPoseStamped.header, PyObject_GetAttrString(pyPoseStamped, "_header")));
             PyObject_SetAttrString(pyPoseStamped, "_pose", PyPose_FromPose(cppPoseStamped.pose, PyObject_GetAttrString(pyPoseStamped, "_pose")));
 
             return pyPoseStamped;
@@ -236,7 +183,7 @@ class GeometryMsgs {
             return cppTwist;
         }
 
-        PyObject* PyTwist_FromTwist(geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist = NULL) {
+        PyObject* PyTwist_FromTwist(const geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist = NULL) {
             if (pyTwist == NULL) {
                 PyObject* twist_class = NULL;
                 twist_class = PyObject_GetAttrString(module_GeometryMsgs, "Twist");
@@ -254,13 +201,13 @@ class GeometryMsgs {
         geometry_msgs::msg::TwistStamped PyTwistStamped_AsTwistStamped(PyObject* pyTwistStamped){
             geometry_msgs::msg::TwistStamped cppTwistStamped = geometry_msgs::msg::TwistStamped();
 
-            cppTwistStamped.header = PyHeader_AsHeader(PyObject_GetAttrString(pyTwistStamped, "_header"));
+            cppTwistStamped.header = stdMsgs->PyHeader_AsHeader(PyObject_GetAttrString(pyTwistStamped, "_header"));
             cppTwistStamped.twist = PyTwist_AsTwist(PyObject_GetAttrString(pyTwistStamped, "_twist"));
 
             return cppTwistStamped;
         }
 
-        PyObject* PyTwistStamped_FromTwistStamped(geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped = NULL) {
+        PyObject* PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped = NULL) {
             if (pyTwistStamped == NULL) {
                 PyObject* twist_stamped_class = NULL;
                 twist_stamped_class = PyObject_GetAttrString(module_GeometryMsgs, "TwistStamped");
@@ -269,12 +216,22 @@ class GeometryMsgs {
                 Py_XDECREF(twist_stamped_class);
             }
 
-            PyObject_SetAttrString(pyTwistStamped, "_header", PyHeader_FromHeader(cppTwistStamped.header, PyObject_GetAttrString(pyTwistStamped, "_header")));
+            PyObject_SetAttrString(pyTwistStamped, "_header", stdMsgs->PyHeader_FromHeader(cppTwistStamped.header, PyObject_GetAttrString(pyTwistStamped, "_header")));
             PyObject_SetAttrString(pyTwistStamped, "_twist", PyTwist_FromTwist(cppTwistStamped.twist, PyObject_GetAttrString(pyTwistStamped, "_twist")));
 
             return pyTwistStamped;
         }
 };
 
+GeometryMsgs* GeometryMsgs::pinstance_{nullptr};
+std::mutex GeometryMsgs::mutex_;
 
-#endif // PY_WRAPPER_GEOMETRY_MSGS_HPP
+GeometryMsgs* GeometryMsgs::GetInstance() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (pinstance_ == nullptr) {
+        pinstance_ = new GeometryMsgs();
+    }
+    return pinstance_;
+}
+
+#endif // GEOMETRY_MSGS_PY_WRAPPER_HPP

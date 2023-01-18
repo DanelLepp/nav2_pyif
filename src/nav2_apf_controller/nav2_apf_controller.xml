@@ -1,0 +1,9 @@
+<class_libraries>
+    <library path="nav2_apf_controller">
+        <class type="nav2_apf_controller::ArtificialPotentialFieldController" base_class_type="nav2_core::Controller">
+            <description>
+                Artificial potential field controller
+            </description>
+        </class>
+    </library>
+</class_libraries>
