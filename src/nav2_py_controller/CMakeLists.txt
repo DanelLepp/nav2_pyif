@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.8)
-project(nav2_apf_controller)
+project(nav2_py_controller)
 set(WRAPPERS "python_wrappers")
 
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
+
+set(CMAKE_CXX_STANDARD 17)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -25,17 +28,10 @@ find_package(tf2_ros REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 
 nav2_package()
-set(CMAKE_CXX_STANDARD 17)
+
 add_executable(apf_test src/apf_test.cpp)
 
-set(library_name nav2_apf_controller)
-
-# target_include_directories(${library_name} PUBLIC
-#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
-#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${WRAPPERS}>
-#   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
-#   $<INSTALL_INTERFACE:include/${WRAPPERS}>)
-# target_compile_features(${library_name} PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+set(library_name nav2_py_controller)
 
 install(TARGETS apf_test
   DESTINATION lib/${PROJECT_NAME})
@@ -61,8 +57,6 @@ set(dependencies
   tf2_ros
   builtin_interfaces
 )
-
-
 
 add_library(${library_name} SHARED
         src/${library_name}.cpp
@@ -102,8 +96,6 @@ install(DIRECTORY include/
 ament_export_include_directories(include)
 ament_export_libraries(${library_name})
 ament_export_dependencies(${dependencies})
-ament_export_targets(
-  export_${PROJECT_NAME}
-)
+ament_export_targets(export_${PROJECT_NAME})
 
 ament_package()

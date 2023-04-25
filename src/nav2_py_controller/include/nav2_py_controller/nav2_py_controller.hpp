@@ -2,7 +2,6 @@
 #define NAV2_APF_CONTROLLER_HPP
 
 #include "nav2_core/controller.hpp"
-#include "python_wrappers/apf_py_wrapper.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
 #include "rclcpp/rclcpp.hpp"
 // #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -10,13 +9,13 @@
 
 // #include "python3.10/Python.h"
 
-namespace nav2_apf_controller {
+namespace nav2_py_controller {
 
-class ArtificialPotentialFieldController : public nav2_core::Controller
+class PyController : public nav2_core::Controller
 {
     public:
-        ArtificialPotentialFieldController();
-        ~ArtificialPotentialFieldController() override;
+        PyController();
+        ~PyController() override;
 
         void configure(
             const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
@@ -38,19 +37,24 @@ class ArtificialPotentialFieldController : public nav2_core::Controller
         void setSpeedLimit(const double & speed_limit, const bool & percentage) override;
 
     protected:
-        ArtificialPotentialField* apf_controller;
         nav_msgs::msg::Path globalPath;
+
+        std::string python_module_;
+        std::string set_plan_;
+        std::string set_speed_limit_;
+        std::string compute_velocity_commands_;
+        std::string update_costmap_;
 
         rclcpp_lifecycle::LifecycleNode::WeakPtr node_;
         std::shared_ptr<tf2_ros::Buffer> tf_;
         std::string plugin_name_;
-        rclcpp::Logger logger_ {rclcpp::get_logger("ArtificialPotentialFieldController")};
+        rclcpp::Logger logger_ {rclcpp::get_logger("PyController")};
         rclcpp::Clock::SharedPtr clock_;
         nav2_costmap_2d::Costmap2D* costmap;
 
         nav_msgs::msg::OccupancyGrid getOccupancyGridMsg();
 };
 
-} // namespace nav2_apf_controller
+} // namespace nav2_py_controller
 
 #endif // NAV2_APF_CONTROLLER_HPP
