@@ -20,6 +20,8 @@
 
 ### Add mandatory overrides for controller plugin
 ```
+from geometry_msgs.msg import TwistStamped
+
 def computeVelocityCommands(occupancy_grid, pose, twist):
     cmd_vel = TwistStamped()
     return cmd_vel
