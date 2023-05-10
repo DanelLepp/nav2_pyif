@@ -27,12 +27,15 @@ from geometry_msgs.msg import TwistStamped
 
 def <compute_velocity_commands_override>(occupancy_grid, pose, twist):
     cmd_vel = TwistStamped()
+    # integration with your own code here
     return cmd_vel
 
 def <set_plan_override>(global_plan):
+    # integration with your own code here
     return
 
 def <set_speed_limit_override>(speed_limit, is_percentage):
+    # integration with your own code here
     return
 ```
 
