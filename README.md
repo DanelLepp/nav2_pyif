@@ -36,7 +36,7 @@ def <set_speed_limit_override>(speed_limit, is_percentage):
     return
 ```
 
-### Build the package
+### Build the package (NB! changes is <python_controller>.py take effect only after building)
 ```cd ~/ros2_ws```<br/>
 ```colcon build```<br/>
 
