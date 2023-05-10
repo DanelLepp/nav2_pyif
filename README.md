@@ -44,7 +44,7 @@ def <set_speed_limit_override>(speed_limit, is_percentage):
 ```cd ~/ros2_ws/src/<package_name>/```<br/>
 ```python3 setup.py bdist_wheel```<br/>
 
-### Add the package to YAML
+### [Add the package to YAML](https://github.com/DanelLepp/ros_cppy/blob/main/src/params.yaml)
 ```
 python_module: "<package_name>.<python_controller>" # NB! ".py" is not added
 python_delegates:
