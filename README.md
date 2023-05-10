@@ -1,4 +1,4 @@
-# ROS 2 Nav 2 and Python Integration
+# ROS 2 Nav 2 Python Interface (ROS2 Nav 2 PYIF)
 
 ## Setup
 * Ubuntu 22.04.1 LTS for running ROS Humble Distribution
