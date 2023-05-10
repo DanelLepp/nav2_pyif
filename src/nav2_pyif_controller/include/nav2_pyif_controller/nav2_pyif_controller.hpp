@@ -9,13 +9,13 @@
 
 // #include "python3.10/Python.h"
 
-namespace nav2_py_controller {
+namespace nav2_pyif_controller {
 
-class PyController : public nav2_core::Controller
+class PYIFController : public nav2_core::Controller
 {
     public:
-        PyController();
-        ~PyController() override;
+        PYIFController();
+        ~PYIFController() override;
 
         void configure(
             const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
@@ -48,13 +48,13 @@ class PyController : public nav2_core::Controller
         rclcpp_lifecycle::LifecycleNode::WeakPtr node_;
         std::shared_ptr<tf2_ros::Buffer> tf_;
         std::string plugin_name_;
-        rclcpp::Logger logger_ {rclcpp::get_logger("PyController")};
+        rclcpp::Logger logger_ {rclcpp::get_logger("PYIFController")};
         rclcpp::Clock::SharedPtr clock_;
         nav2_costmap_2d::Costmap2D* costmap;
 
         nav_msgs::msg::OccupancyGrid getOccupancyGridMsg();
 };
 
-} // namespace nav2_py_controller
+} // namespace nav2_pyif_controller
 
 #endif // NAV2_APF_CONTROLLER_HPP

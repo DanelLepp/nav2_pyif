@@ -11,7 +11,7 @@
 #include "std_msgs/msg/header.hpp"
 #include "builtin_interfaces/msg/time.hpp"
 
-#include "py_wrapper.hpp"
+#include "pyif.hpp"
 
 static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp) {
     builtin_interfaces::msg::Time cppStamp = builtin_interfaces::msg::Time ();
@@ -22,9 +22,9 @@ static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp) {
     return cppStamp;
 }
 
-static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp = NULL) {
+static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp) {
     if (pyStamp == NULL) {
-        PyObject* time_class = PyWrapper::GetFunction("builtin_interfaces.msg", "Time");
+        PyObject* time_class = PYIF::GetFunction("builtin_interfaces.msg", "Time");
         pyStamp = PyObject_CallObject(time_class, NULL);
         Py_XDECREF(time_class);
     }
@@ -44,9 +44,9 @@ static std_msgs::msg::Header PyHeader_AsHeader(PyObject* pyHeader) {
     return cppHeader;
 }
 
-static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader = NULL) {
+static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader) {
     if (pyHeader == NULL) {
-        PyObject* header_class = PyWrapper::GetFunction("std_msgs.msg", "Header");
+        PyObject* header_class = PYIF::GetFunction("std_msgs.msg", "Header");
         pyHeader = PyObject_CallObject(header_class, NULL);
         Py_XDECREF(header_class);
     }

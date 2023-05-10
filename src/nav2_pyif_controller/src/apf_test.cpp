@@ -70,12 +70,14 @@ geometry_msgs::msg::TwistStamped computeVelocityCommands(
         std::cout << "pyPose == NULL" << std::endl;
     }
 
-    // PyObject* pyTwist = PyTwist_FromTwist(twist);
+    geometry_msgs::msg::Twist twist = geometry_msgs::msg::Twist();
 
-    PyObject *arguments = PyTuple_New(2);
+    PyObject* pyTwist = PyTwist_FromTwist(twist);
+
+    PyObject *arguments = PyTuple_New(3);
     PyTuple_SetItem(arguments, 0, pyOccupancyGrid);
     PyTuple_SetItem(arguments, 1, pyPose);
-    // PyTuple_SetItem(arguments, 2, pyTwist);
+    PyTuple_SetItem(arguments, 2, pyTwist);
 
     PyObject *func_getVelocity = PyWrapper::GetFunction("artificial_potential_field.artificial_potential_field", "computeVelocityCommands");
 
@@ -122,25 +124,29 @@ void Initialise()
 
 void ModuleImport()
 {
-    for (int i = 0; i < 100; i++)
+    Py_Initialize();
     {
-        auto start3 = std::chrono::system_clock::now();
-        PyImport_ImportModule("std_msgs.msg");
-        auto end3 = std::chrono::system_clock::now();
-        std::cout << " std_msgs " << std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - start3).count();
+    auto start = std::chrono::system_clock::now();
+    auto obj = PyImport_ImportModule("nav_msgs.msg");
+    auto end = std::chrono::system_clock::now();
+    std::cout << " nav_msgs " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+    
+    // auto start2 = std::chrono::system_clock::now();
+    // auto obj2 = PyImport_ImportModule("geometry_msgs.msg");
+    // auto end2 = std::chrono::system_clock::now();
+    // std::cout << " geom_msgs " << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count();
+    
+    // auto start3 = std::chrono::system_clock::now();
+    // auto obj3 = PyImport_ImportModule("std_msgs.msg");
+    // auto end3 = std::chrono::system_clock::now();
+    // std::cout << " std_msgs " << std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - start3).count();
 
-        auto start2 = std::chrono::system_clock::now();
-        PyImport_ImportModule("geometry_msgs.msg");
-        auto end2 = std::chrono::system_clock::now();
-        std::cout << " geom_msgs " << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count();
 
-        auto start = std::chrono::system_clock::now();
-        PyImport_ImportModule("nav_msgs.msg");
-        auto end = std::chrono::system_clock::now();
-        std::cout << " nav_msgs " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
-
-
+    Py_XDECREF(obj);
+    // Py_XDECREF(obj2);
+    // Py_XDECREF(obj3);
     }
+    Py_Finalize();
 }
 
 void GetFunction()
@@ -160,15 +166,64 @@ void GetFunction()
 
 void GetFunctionRaw()
 {   
-    std::pair<std::string, std::string> funcs = {"artificial_potential_field.artificial_potential_field", "computeVelocityCommands"};
+    Py_Initialize();
+    std::pair<std::string, std::string> funcs = {"geometry_msgs.msg", "Quaternion"};
+    PyObject* pyModule = PyImport_ImportModule(funcs.first.c_str());
     for (int i = 0; i < 100; i++)
     {
         auto start = std::chrono::system_clock::now();
-        PyObject* pyModule = PyImport_ImportModule(funcs.first.c_str());
-        PyObject_GetAttrString(pyModule, funcs.second.c_str());
+        
+        auto obj = PyObject_GetAttrString(pyModule, funcs.second.c_str());
         auto end = std::chrono::system_clock::now();
         std::cout << " get func " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+        Py_XDECREF(obj);
     }
+    Py_Finalize();
+}
+
+void GetFunctionCall()
+{   
+    //std::pair<std::string, std::string> funcs = {"artificial_potential_field.artificial_potential_field", "computeVelocityCommands"};
+    //PyObject* pyModule = PyImport_ImportModule(funcs.first.c_str());
+    std::vector<std::pair<std::string, std::string>> funcs;
+    PyWrapper::Init(funcs);
+    PyObject* pyFunc = PyWrapper::GetFunction("geometry_msgs.msg", "Quaternion");
+
+    for (int i = 0; i < 100; i++)
+    {
+        auto start = std::chrono::system_clock::now();
+        PyObject_CallObject(pyFunc, NULL);
+        auto end = std::chrono::system_clock::now();
+        std::cout << " call func " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+    }
+    PyWrapper::DeInit();
+}
+
+void Convert()
+{   
+    //std::pair<std::string, std::string> funcs = {"artificial_potential_field.artificial_potential_field", "computeVelocityCommands"};
+    //PyObject* pyModule = PyImport_ImportModule(funcs.first.c_str());
+    std::vector<std::pair<std::string, std::string>> funcs;
+    PyWrapper::Init(funcs);
+    PyObject* pyFunc = PyWrapper::GetFunction("geometry_msgs.msg", "Quaternion");
+    auto quaternion = PyObject_CallObject(pyFunc, NULL);
+
+    for (int i = 0; i < 100; i++)
+    {
+        auto start = std::chrono::system_clock::now();
+        auto pyfloat = PyFloat_FromDouble(1.0);
+        auto end = std::chrono::system_clock::now();
+        std::cout << " doubleToPy " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+    
+        auto start1 = std::chrono::system_clock::now();
+        
+        PyObject_SetAttrString(quaternion, "_x", pyfloat);
+        auto end1 = std::chrono::system_clock::now();
+        std::cout << " setattr " << std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start1).count() << std::endl;
+    
+        Py_XDECREF(pyfloat);
+    }
+    PyWrapper::DeInit();
 }
 
 void ImportTest()
@@ -186,57 +241,63 @@ void ImportTest()
     globalPath.poses = std::vector<geometry_msgs::msg::PoseStamped>{goal_pose};
     std::cout << "size " << globalPath.poses.size() << std::endl;
 
+    std::vector<std::pair<std::string, std::string>> funcs;
+    funcs.push_back({"artificial_potential_field.artificial_potential_field", "computeVelocityCommands"});
+    PyWrapper::Init(funcs);
+
     setPlan(globalPath);
     computeVelocityCommands(pose);
 }
 
-// void ThroughPut() {
-//   ArtificialPotentialField* apfModule = ArtificialPotentialField::GetInstance();
+void ThroughPut() {
+//   PyObject* pyFunc = PyWrapper::GetFunction("artificial_potential_field.artificial_potential_field", "computeVelocityCommands");
 
-//   nav_msgs::msg::OccupancyGrid costmap_msg = nav_msgs::msg::OccupancyGrid();
-//   costmap_msg.info.resolution = 1;
-//   costmap_msg.info.width = 4;
-//   costmap_msg.info.height = 4;
-//   costmap_msg.data = std::vector<signed char>{10, 20, 30, 40, 11, 21, 31, 41, 12, 22, 32, 42, 13, 23, 33, 43};
-//   geometry_msgs::msg::PoseStamped pose = geometry_msgs::msg::PoseStamped();
-//   nav_msgs::msg::Path globalPath = nav_msgs::msg::Path();
-//   geometry_msgs::msg::PoseStamped goal_pose = geometry_msgs::msg::PoseStamped();
-//   goal_pose.pose.position.x = 2;
-//   goal_pose.pose.position.y = 2;
-//   globalPath.poses = std::vector<geometry_msgs::msg::PoseStamped>{goal_pose};
+  nav_msgs::msg::OccupancyGrid costmap_msg = nav_msgs::msg::OccupancyGrid();
+  costmap_msg.info.resolution = 1;
+  costmap_msg.info.width = 4;
+  costmap_msg.info.height = 4;
+  costmap_msg.data = std::vector<signed char>{10, 20, 30, 40, 11, 21, 31, 41, 12, 22, 32, 42, 13, 23, 33, 43};
+  geometry_msgs::msg::PoseStamped pose = geometry_msgs::msg::PoseStamped();
+  nav_msgs::msg::Path globalPath = nav_msgs::msg::Path();
+  geometry_msgs::msg::PoseStamped goal_pose = geometry_msgs::msg::PoseStamped();
+  goal_pose.pose.position.x = 2;
+  goal_pose.pose.position.y = 2;
+  globalPath.poses = std::vector<geometry_msgs::msg::PoseStamped>{goal_pose};
 
-//   // GeometryMsgs* geometryMsgs = GeometryMsgs::GetInstance();
-//   // NavMsgs* navMsgs = NavMsgs::GetInstance();
+  // GeometryMsgs* geometryMsgs = GeometryMsgs::GetInstance();
+  // NavMsgs* navMsgs = NavMsgs::GetInstance();
 //   for(int i = 0; i < 1000; i++) {
-//     apfModule->getVelocity(costmap_msg, pose, globalPath);
-//     // PyObject* arguments = PyTuple_New(3);;
-//     // PyObject* pyOccupancyGrid = navMsgs->PyOccupancyGrid_FromOccupancyGrid(costmap_msg);
-//     // PyObject* pyPose = geometryMsgs->PyPoseStamped_FromPoseStamped(pose);
-//     // PyObject* pyGlobalPath = navMsgs->PyPath_FromPath(globalPath);
-//     // PyTuple_SetItem(arguments, 0, pyOccupancyGrid);
-//     // PyTuple_SetItem(arguments, 1, pyPose);
-//     // PyTuple_SetItem(arguments, 2, pyGlobalPath);
+    computeVelocityCommands(pose);
+    // PyObject* arguments = PyTuple_New(3);;
+    // PyObject* pyOccupancyGrid = navMsgs->PyOccupancyGrid_FromOccupancyGrid(costmap_msg);
+    // PyObject* pyPose = geometryMsgs->PyPoseStamped_FromPoseStamped(pose);
+    // PyObject* pyGlobalPath = navMsgs->PyPath_FromPath(globalPath);
+    // PyTuple_SetItem(arguments, 0, pyOccupancyGrid);
+    // PyTuple_SetItem(arguments, 1, pyPose);
+    // PyTuple_SetItem(arguments, 2, pyGlobalPath);
 
-//     // PyObject* func_getVelocity = PyWrapper::GetFunction("artificial_potential_field.artificial_potential_field", "getVelocity");
-//     // PyObject* value = PyObject_CallObject(func_getVelocity, arguments);
-//     // if (value == NULL) {
-//     //     std::cout << "value == NULL" << std::endl;
-//     // }
+    // PyObject* func_getVelocity = PyWrapper::GetFunction("artificial_potential_field.artificial_potential_field", "getVelocity");
+    // PyObject* value = PyObject_CallObject(func_getVelocity, arguments);
+    // if (value == NULL) {
+    //     std::cout << "value == NULL" << std::endl;
+    // }
 //   }
-// }
+}
 
 int main()
 {
-    Py_Initialize();
+    // Py_Initialize();
     // ModuleImport();
+    // Convert();
     // GetFunction();
-    GetFunctionRaw();
-    Py_Finalize();
+    // GetFunctionRaw();
+    // GetFunctionCall();
+    // Py_Finalize();
 
     //   dlopen("libpython3.10.so", RTLD_LAZY | RTLD_GLOBAL);
     // ComputeVelocity();
     //   ImportTest();
-    // ThroughPut();
+    ImportTest();
 
     return 0;
 }

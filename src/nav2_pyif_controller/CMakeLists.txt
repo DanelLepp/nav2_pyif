@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
-project(nav2_py_controller)
+project(nav2_pyif_controller)
 set(WRAPPERS "python_wrappers")
 
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,12 +29,12 @@ find_package(builtin_interfaces REQUIRED)
 
 nav2_package()
 
-add_executable(apf_test src/apf_test.cpp)
+# add_executable(apf_test src/apf_test.cpp)
 
-set(library_name nav2_py_controller)
+set(library_name nav2_pyif_controller)
 
-install(TARGETS apf_test
-  DESTINATION lib/${PROJECT_NAME})
+# install(TARGETS apf_test
+  # DESTINATION lib/${PROJECT_NAME})
 
 include_directories(
   include
@@ -62,13 +62,13 @@ add_library(${library_name} SHARED
         src/${library_name}.cpp
 )
 
-target_include_directories(apf_test PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+# target_include_directories(apf_test PUBLIC
+#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#   $<INSTALL_INTERFACE:include>)
 
-  ament_target_dependencies(apf_test
-  ${dependencies}
-)
+#   ament_target_dependencies(apf_test
+#   ${dependencies}
+# )
 
 ament_target_dependencies(${library_name}
   ${dependencies}

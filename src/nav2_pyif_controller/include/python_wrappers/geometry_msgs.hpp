@@ -13,7 +13,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 
-#include "py_wrapper.hpp"
+#include "pyif.hpp"
 
 static geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* pyVector3) {
     geometry_msgs::msg::Vector3 cppVector3 = geometry_msgs::msg::Vector3();
@@ -25,21 +25,20 @@ static geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* pyVector3) {
     return cppVector3;
 }
 
-// static PyObject* PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cppVector3, PyObject* pyVector3 = NULL) {
-//     if (pyVector3 == NULL) {
-//         PyObject* vector3_class = NULL;
-//         vector3_class = PyWrapper::GetFunction("geometry_msgs.msg", "Vector3");
+static PyObject* PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cppVector3, PyObject* pyVector3 = NULL) {
+    if (pyVector3 == NULL) {
+        PyObject* vector3_class = PYIF::GetFunction("geometry_msgs.msg", "Vector3");
 
-//         pyVector3 = PyObject_CallObject(vector3_class, NULL);
-//         Py_XDECREF(vector3_class);
-//     }
+        pyVector3 = PyObject_CallObject(vector3_class, NULL);
+        Py_XDECREF(vector3_class);
+    }
     
-//     PyObject_SetAttrString(pyVector3, "_x", PyFloat_FromDouble(cppVector3.x));
-//     PyObject_SetAttrString(pyVector3, "_y", PyFloat_FromDouble(cppVector3.y));
-//     PyObject_SetAttrString(pyVector3, "_z", PyFloat_FromDouble(cppVector3.z));
+    PyObject_SetAttrString(pyVector3, "_x", PyFloat_FromDouble(cppVector3.x));
+    PyObject_SetAttrString(pyVector3, "_y", PyFloat_FromDouble(cppVector3.y));
+    PyObject_SetAttrString(pyVector3, "_z", PyFloat_FromDouble(cppVector3.z));
 
-//     return pyVector3;
-// }
+    return pyVector3;
+}
 
 // static geometry_msgs::msg::Point PyPoint_AsPoint(PyObject* pyPoint){
 //     geometry_msgs::msg::Point cppPoint = geometry_msgs::msg::Point();
@@ -54,7 +53,7 @@ static geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* pyVector3) {
 static PyObject* PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* pyPoint = NULL) {
     if (pyPoint == NULL) {
         PyObject* point_class = NULL;
-        point_class = PyWrapper::GetFunction("geometry_msgs.msg", "Point");
+        point_class = PYIF::GetFunction("geometry_msgs.msg", "Point");
 
         pyPoint = PyObject_CallObject(point_class, NULL);
         Py_XDECREF(point_class);
@@ -81,7 +80,7 @@ static PyObject* PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, Py
 static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cppOrientation, PyObject* pyOrientation = NULL) {
     if (pyOrientation == NULL) {
         PyObject* quaternion_class = NULL;
-        quaternion_class = PyWrapper::GetFunction("geometry_msgs.msg", "Quaternion");
+        quaternion_class = PYIF::GetFunction("geometry_msgs.msg", "Quaternion");
 
         pyOrientation = PyObject_CallObject(quaternion_class, NULL);
         Py_XDECREF(quaternion_class);
@@ -91,7 +90,7 @@ static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quatern
     PyObject_SetAttrString(pyOrientation, "_y", PyFloat_FromDouble(cppOrientation.y));
     PyObject_SetAttrString(pyOrientation, "_z", PyFloat_FromDouble(cppOrientation.z));
     PyObject_SetAttrString(pyOrientation, "_w", PyFloat_FromDouble(cppOrientation.w));
-
+    
     return pyOrientation;
 }
 
@@ -107,7 +106,7 @@ static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quatern
 static PyObject* PyPose_FromPose(const geometry_msgs::msg::Pose& cppPose, PyObject* pyPose = NULL) {
     if (pyPose == NULL) {
         PyObject* pose_class = NULL;
-        pose_class = PyWrapper::GetFunction("geometry_msgs.msg", "Pose");
+        pose_class = PYIF::GetFunction("geometry_msgs.msg", "Pose");
 
         pyPose = PyObject_CallObject(pose_class, NULL);
         Py_XDECREF(pose_class);
@@ -133,7 +132,7 @@ static PyObject* PyPose_FromPose(const geometry_msgs::msg::Pose& cppPose, PyObje
 static PyObject* PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cppPoseStamped, PyObject* pyPoseStamped = NULL) {
     if (pyPoseStamped == NULL) {
         PyObject* pose_stamped_class = NULL;
-        pose_stamped_class = PyWrapper::GetFunction("geometry_msgs.msg", "PoseStamped");
+        pose_stamped_class = PYIF::GetFunction("geometry_msgs.msg", "PoseStamped");
 
         pyPoseStamped = PyObject_CallObject(pose_stamped_class, NULL);
         Py_XDECREF(pose_stamped_class);
@@ -154,20 +153,19 @@ static geometry_msgs::msg::Twist PyTwist_AsTwist(PyObject* pyTwist){
     return cppTwist;
 }
 
-// static PyObject* PyTwist_FromTwist(const geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist = NULL) {
-//     if (pyTwist == NULL) {
-//         PyObject* twist_class = NULL;
-//         twist_class = PyWrapper::GetFunction("geometry_msgs.msg", "Twist");
+static PyObject* PyTwist_FromTwist(const geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist = NULL) {
+    if (pyTwist == NULL) {
+        PyObject* twist_class = PYIF::GetFunction("geometry_msgs.msg", "Twist");
 
-//         pyTwist = PyObject_CallObject(twist_class, NULL);
-//         Py_XDECREF(twist_class);
-//     }
+        pyTwist = PyObject_CallObject(twist_class, NULL);
+        Py_XDECREF(twist_class);
+    }
 
-//     PyObject_SetAttrString(pyTwist, "_linear", PyVector3_FromVector3(cppTwist.linear, PyObject_GetAttrString(pyTwist, "_linear")));
-//     PyObject_SetAttrString(pyTwist, "_angular", PyVector3_FromVector3(cppTwist.angular, PyObject_GetAttrString(pyTwist, "_angular")));
+    PyObject_SetAttrString(pyTwist, "_linear", PyVector3_FromVector3(cppTwist.linear, PyObject_GetAttrString(pyTwist, "_linear")));
+    PyObject_SetAttrString(pyTwist, "_angular", PyVector3_FromVector3(cppTwist.angular, PyObject_GetAttrString(pyTwist, "_angular")));
 
-//     return pyTwist;
-// }
+    return pyTwist;
+}
 
 static geometry_msgs::msg::TwistStamped PyTwistStamped_AsTwistStamped(PyObject* pyTwistStamped){
     geometry_msgs::msg::TwistStamped cppTwistStamped = geometry_msgs::msg::TwistStamped();
@@ -183,7 +181,7 @@ static geometry_msgs::msg::TwistStamped PyTwistStamped_AsTwistStamped(PyObject* 
 // static PyObject* PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped = NULL) {
 //     if (pyTwistStamped == NULL) {
 //         PyObject* twist_stamped_class = NULL;
-//         twist_stamped_class = PyWrapper::GetFunction("geometry_msgs.msg", "TwistStamped");
+//         twist_stamped_class = PYIF::GetFunction("geometry_msgs.msg", "TwistStamped");
 
 //         pyTwistStamped = PyObject_CallObject(twist_stamped_class, NULL);
 //         Py_XDECREF(twist_stamped_class);

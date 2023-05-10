@@ -14,7 +14,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 
-#include "py_wrapper.hpp"
+#include "pyif.hpp"
 
 // static nav_msgs::msg::MapMetaData PyMapMetaData_AsMapMetaData(PyObject* pyMapMetaData) {
 //     nav_msgs::msg::MapMetaData cppMapMetaData = nav_msgs::msg::MapMetaData();
@@ -30,7 +30,7 @@
 
 static PyObject* PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData& cppMapMetaData, PyObject* pyMapMetaData = NULL) {
     if (pyMapMetaData == NULL) {
-        PyObject* time_class = PyWrapper::GetFunction("nav_msgs.msg", "MapMetaData");
+        PyObject* time_class = PYIF::GetFunction("nav_msgs.msg", "MapMetaData");
 
         pyMapMetaData = PyObject_CallObject(time_class, NULL);
         Py_XDECREF(time_class);
@@ -64,7 +64,7 @@ static PyObject* PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData&
 
 static PyObject* PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::OccupancyGrid& cppOccupancyGrid, PyObject* pyOccupancyGrid = NULL) {
     if (pyOccupancyGrid == NULL) {
-        PyObject* occupancyGrid_class = PyWrapper::GetFunction("nav_msgs.msg", "OccupancyGrid");
+        PyObject* occupancyGrid_class = PYIF::GetFunction("nav_msgs.msg", "OccupancyGrid");
 
         pyOccupancyGrid = PyObject_CallObject(occupancyGrid_class, NULL);
         Py_XDECREF(occupancyGrid_class);
@@ -104,7 +104,7 @@ static PyObject* PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::Occupanc
 
 static PyObject* PyPath_FromPath(const nav_msgs::msg::Path& cppPath, PyObject* pyPath = NULL) {
     if (pyPath == NULL) {
-        PyObject* path_class = PyWrapper::GetFunction("nav_msgs.msg", "Path");
+        PyObject* path_class = PYIF::GetFunction("nav_msgs.msg", "Path");
 
         if (path_class == NULL) {
             std::cout << "path_class == NULL" << std::endl;

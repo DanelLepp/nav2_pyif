@@ -1,6 +1,6 @@
 <class_libraries>
-    <library path="nav2_py_controller">
-        <class type="nav2_py_controller::PyController" base_class_type="nav2_core::Controller">
+    <library path="nav2_pyif_controller">
+        <class type="nav2_pyif_controller::PYIFController" base_class_type="nav2_core::Controller">
             <description>
                 Wrapper for python controller.
             </description>
