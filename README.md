@@ -41,13 +41,14 @@ def <set_speed_limit_override>(speed_limit, is_percentage):
 ```
 
 ### Build the package (NB! changes is <python_controller>.py take effect only after building)
+Go back into the root folder.<br/>
 ```cd ..```<br/>
 ```colcon build```<br/>
 
 ### Install the local package
 ```pip install -e src/<package_name>/```<br/>
 
-### [Add the package to YAML](https://github.com/DanelLepp/ros_cppy/blob/main/src/params.yaml)
+### [Add the package to src/params.yaml](https://github.com/DanelLepp/ros_cppy/blob/main/src/params.yaml)
 ```
 python_module: "<package_name>.<python_controller>" # NB! ".py" is not added
 python_delegates:
