@@ -50,5 +50,5 @@ python_module: "<package_name>.<python_controller>" # NB! ".py" is not added
 python_delegates:
   set_plan: "<set_plan_override>"
   set_speed_limit: "<set_speed_limit_override>"
-  compute_velocity_commands: "<func_computeVelocityCommands_override>"
+  compute_velocity_commands: "<compute_velocity_commands_override>"
 ```
