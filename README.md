@@ -3,6 +3,7 @@
 ## Setup
 * Ubuntu 22.04.1 LTS for running ROS Humble Distribution
 * Clone the respository into to your ros2_ws and build it. <br/>
+```source /opt/ros/humble/setup.bash```<br/>
 ```cd ~/ros2_ws```<br/>
 ```colcon build```<br/>
 
