@@ -44,9 +44,8 @@ def <set_speed_limit_override>(speed_limit, is_percentage):
 ```cd ..```<br/>
 ```colcon build```<br/>
 
-### [Create a wheel package](https://datacadamia.com/lang/python/shipping/wheel)
-```cd nav2_pyif/src/<package_name>/```<br/>
-```python3 setup.py bdist_wheel```<br/>
+### Install the local package
+```pip install -e src/<package_name>/```<br/>
 
 ### [Add the package to YAML](https://github.com/DanelLepp/ros_cppy/blob/main/src/params.yaml)
 ```
