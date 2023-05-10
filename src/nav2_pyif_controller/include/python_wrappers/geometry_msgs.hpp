@@ -5,11 +5,6 @@
 
 #include "std_msgs.hpp"
 
-#define Py_DEBUG
-#define PY_SSIZE_T_CLEAN
-
-
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 

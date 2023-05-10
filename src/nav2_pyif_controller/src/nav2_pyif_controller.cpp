@@ -12,7 +12,6 @@ namespace nav2_pyif_controller {
 
 PYIFController::PYIFController()
 {
-  // Py_Initialize();
   dlopen("libpython3.10.so", RTLD_LAZY | RTLD_GLOBAL);
 }
 

@@ -3,11 +3,6 @@
 
 #include "python3.10/Python.h"
 
-#define Py_DEBUG
-#define PY_SSIZE_T_CLEAN
-
-
-#include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
 #include "builtin_interfaces/msg/time.hpp"
 

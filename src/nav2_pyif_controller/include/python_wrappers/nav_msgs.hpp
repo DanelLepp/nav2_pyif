@@ -3,14 +3,9 @@
 
 #include "python3.10/Python.h"
 
-#define Py_DEBUG
-#define PY_SSIZE_T_CLEAN
-
-
 #include "std_msgs.hpp"
 #include "geometry_msgs.hpp"
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 

@@ -4,10 +4,6 @@
 #include "nav2_core/controller.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
 #include "rclcpp/rclcpp.hpp"
-// #include "geometry_msgs/msg/pose_stamped.hpp"
-// #include "geometry_msgs/msg/twist_stamped.hpp"
-
-// #include "python3.10/Python.h"
 
 namespace nav2_pyif_controller {
 
