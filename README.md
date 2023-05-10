@@ -1,4 +1,4 @@
-# ROS CPP and Python Integration
+# ROS 2 Nav 2 and Python Integration
 
 ## Setup
 * Ubuntu 22.04.1 LTS for running ROS Humble Distribution
