@@ -7,8 +7,12 @@
 ```colcon build```<br/>
 
 ## Running the example
-```source install/setup.bash```<br/>
-```ros2 run my_package my_node```<br/>
+```
+source install/setup.bash
+export TURTLEBOT3_MODEL=waffle
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/humble/share/turtlebot3_gazebo/models
+ros2 launch nav2_bringup tb3_simulation_launch.py headless:=False params_file:=<path_to_ros2_ws>/src/params.yaml 
+```
 
 ## Creating your own custom Python controller
 ### [Create a Python package](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html)
