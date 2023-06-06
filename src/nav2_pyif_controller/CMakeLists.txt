@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(nav2_pyif_controller)
-set(WRAPPERS "python_wrappers")
-
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,15 +27,15 @@ find_package(builtin_interfaces REQUIRED)
 
 nav2_package()
 
-# add_executable(apf_test src/apf_test.cpp)
-
 set(library_name nav2_pyif_controller)
 
-# install(TARGETS apf_test
-  # DESTINATION lib/${PROJECT_NAME})
+add_compile_definitions(
+  PYTHON_LIB="${PYTHON_LIBRARIES}"
+)
 
 include_directories(
   include
+  ${PYTHON_INCLUDE_DIRS}
 )
 
 set(dependencies
@@ -59,25 +57,23 @@ set(dependencies
 )
 
 add_library(${library_name} SHARED
-        src/${library_name}.cpp
+  src/${library_name}.cpp
 )
 
-# target_include_directories(apf_test PUBLIC
-#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#   $<INSTALL_INTERFACE:include>)
+add_executable(apf_test src/apf_test.cpp src/nav2_pyif_controller.cpp)
 
-#   ament_target_dependencies(apf_test
-#   ${dependencies}
-# )
+ament_target_dependencies(apf_test
+  ${dependencies}
+)
 
 ament_target_dependencies(${library_name}
   ${dependencies}
 )
 
 # prevent pluginlib from using boost
-target_compile_definitions(${library_name} PUBLIC 
-  "PLUGINLIB__DISABLE_BOOST_FUNCTIONS"
-)
+# target_compile_definitions(${library_name} PUBLIC 
+#   "PLUGINLIB__DISABLE_BOOST_FUNCTIONS"
+# )
 
 pluginlib_export_plugin_description_file(nav2_core ${library_name}.xml)
 
@@ -86,11 +82,11 @@ install(TARGETS ${library_name}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES DESTINATION include 
 )
 
 install(DIRECTORY include/
-  DESTINATION include/
+  DESTINATION include
 )
 
 ament_export_include_directories(include)
