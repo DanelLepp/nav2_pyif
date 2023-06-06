@@ -31,7 +31,7 @@ class PYIFController : public nav2_core::Controller
         void setSpeedLimit(const double & speed_limit, const bool & percentage) override;
 
     protected:
-        nav_msgs::msg::Path globalPath;
+        nav_msgs::msg::OccupancyGrid getOccupancyGridMsg();
 
         std::string python_module_;
         std::string set_plan_;
@@ -44,11 +44,7 @@ class PYIFController : public nav2_core::Controller
         std::string plugin_name_;
         rclcpp::Logger logger_ {rclcpp::get_logger("PYIFController")};
         rclcpp::Clock::SharedPtr clock_;
-        nav2_costmap_2d::Costmap2D* costmap;
-
-        nav_msgs::msg::OccupancyGrid getOccupancyGridMsg();
-
-        // dlloader::DLLoader dlloader(PYTHON_PATH);
+        nav2_costmap_2d::Costmap2D* costmap_;
 };
 
 } // namespace nav2_pyif_controller

@@ -1,21 +1,17 @@
 #include "nav2_pyif_controller/nav2_pyif_controller.hpp"
-#include "nav2_pyif/nav2_pyif.hpp"
+
 #include "nav2_util/node_utils.hpp"
+#include "nav2_pyif/nav2_pyif.hpp"
 
 namespace nav2_pyif_controller {
 
-PYIFController::PYIFController()
-{
-}
+PYIFController::PYIFController() {}
 
-PYIFController::~PYIFController()
-{
-}
+PYIFController::~PYIFController() {}
 
 void PYIFController::configure( const rclcpp_lifecycle::LifecycleNode::WeakPtr& parent,
-                              std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
-                              std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmapRos) 
-{
+                                std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
+                                std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmapRos) {
     
   plugin_name_ = name;
   node_ = parent;
@@ -23,7 +19,7 @@ void PYIFController::configure( const rclcpp_lifecycle::LifecycleNode::WeakPtr& 
   tf_ = tf;
   logger_ = node->get_logger();
   clock_ = node->get_clock();
-  costmap = costmapRos->getCostmap();;
+  costmap_ = costmapRos->getCostmap();;
 
   nav2_util::declare_parameter_if_not_declared(node, plugin_name_ + ".python_module", rclcpp::ParameterValue("artificial_potential_field.artificial_potential_field"));
   nav2_util::declare_parameter_if_not_declared(node, plugin_name_ + ".python_delegates.set_plan", rclcpp::ParameterValue("setPath"));
@@ -56,8 +52,7 @@ void PYIFController::configure( const rclcpp_lifecycle::LifecycleNode::WeakPtr& 
 
 }
 
-void PYIFController::activate()
-{
+void PYIFController::activate() {
   RCLCPP_INFO(
     logger_,
     "Activating controller: %s of type "
@@ -66,8 +61,7 @@ void PYIFController::activate()
 
 }
 
-void PYIFController::deactivate()
-{
+void PYIFController::deactivate() {
   RCLCPP_INFO(
     logger_,
     "Deactivating controller: %s of type "
@@ -76,8 +70,7 @@ void PYIFController::deactivate()
 
 }
 
-void PYIFController::cleanup()
-{
+void PYIFController::cleanup() {
   RCLCPP_INFO(
     logger_,
     "Cleaning up controller: %s of type "
@@ -87,143 +80,119 @@ void PYIFController::cleanup()
   pyif::PyMap::DeInit();
 }
 
-void PYIFController::setPlan(const nav_msgs::msg::Path & path) 
-{
-    // auto start = std::chrono::system_clock::now();
-    // RCLCPP_INFO(logger_, "setPlan");
-    globalPath = path;
-
-    static PyObject* pyGlobalPath;
+void PYIFController::setPlan(const nav_msgs::msg::Path & path) {
+    static PyObject* py_path;
     
-    if (pyGlobalPath == NULL) {
-        std::cout << "pyGlobalPath is NULL" << std::endl;
-        pyGlobalPath = pyif::NavMsgs::PyPath_FromPath(path);
+    if (py_path == NULL) {
+        std::cout << "py_path is NULL" << std::endl;
+        py_path = pyif::NavMsgs::PyPath_FromPath(path);
     }
     else
-        pyif::NavMsgs::PyPath_FromPath(path, pyGlobalPath);
+        pyif::NavMsgs::PyPath_FromPath(path, py_path);
 
-    if (pyGlobalPath == NULL) {
-        std::cout << "pyGlobalPath is NULL" << std::endl;
+    if (py_path == NULL) {
+        std::cout << "py_path is NULL" << std::endl;
     }
 
-    static PyObject* arguments;
+    static PyObject* py_args;
 
-    if (arguments == NULL) {
-        std::cout << "arguments is NULL" << std::endl;
-        arguments = PyTuple_New(1);
-        PyTuple_SetItem(arguments, 0, pyGlobalPath);
+    if (py_args == NULL) {
+        std::cout << "py_args is NULL" << std::endl;
+        py_args = PyTuple_New(1);
+        PyTuple_SetItem(py_args, 0, py_path);
     }
 
-    static PyObject* func_setPath;
+    static PyObject* py_func;
 
-    if (func_setPath == NULL) {
-        std::cout << "func_setPath is NULL" << std::endl;
-        func_setPath = pyif::PyMap::GetFunction(python_module_, set_plan_);
+    if (py_func == NULL) {
+        std::cout << "py_func is NULL" << std::endl;
+        py_func = pyif::PyMap::GetFunction(python_module_, set_plan_);
     }
-    // auto end = std::chrono::system_clock::now();
-    // std::cout << " set plan convert " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
 
-    // auto start2 = std::chrono::system_clock::now();
-    PyObject_CallObject(func_setPath, arguments);
-    // auto end2 = std::chrono::system_clock::now();
-    // std::cout << " set plan call" << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() << std::endl;
+    PyObject_CallObject(py_func, py_args);
 }
 
-void PYIFController::setSpeedLimit(const double& speed_limit, const bool & is_percentage) 
-{
-  // auto start = std::chrono::system_clock::now();
-  static PyObject* arguments;
-  if (arguments == NULL) {
-    arguments = PyTuple_New(2);
-    PyTuple_SetItem(arguments, 0, PyFloat_FromDouble(speed_limit));
-    PyTuple_SetItem(arguments, 0, PyBool_FromLong(is_percentage));
+void PYIFController::setSpeedLimit(const double& speed_limit, const bool & is_percentage) {
+  static PyObject* py_args;
+  if (py_args == NULL) {
+    py_args = PyTuple_New(2);
+    PyTuple_SetItem(py_args, 0, PyFloat_FromDouble(speed_limit));
+    PyTuple_SetItem(py_args, 0, PyBool_FromLong(is_percentage));
   }
 
-  static PyObject* func_getVelocity;
-  if (func_getVelocity == NULL)
-    func_getVelocity = pyif::PyMap::GetFunction(python_module_, set_speed_limit_);
-  // auto end = std::chrono::system_clock::now();
-  // std::cout << " set speed limit convert " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
-  // auto start2 = std::chrono::system_clock::now();
-  PyObject_CallObject(func_getVelocity, arguments);
-  // auto end2 = std::chrono::system_clock::now();
-  // std::cout << " set speed limit call " << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() << std::endl;
+  static PyObject* py_func;
+  if (py_func == NULL)
+    py_func = pyif::PyMap::GetFunction(python_module_, set_speed_limit_);
+
+  PyObject_CallObject(py_func, py_args);
 }
 
-nav_msgs::msg::OccupancyGrid PYIFController::getOccupancyGridMsg()
-{
-    nav_msgs::msg::OccupancyGrid occupancyGrid = nav_msgs::msg::OccupancyGrid();
-    std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*(costmap->getMutex()));
-    occupancyGrid.info.resolution           = costmap->getResolution();
-    occupancyGrid.info.width                = costmap->getSizeInCellsX();
-    occupancyGrid.info.height               = costmap->getSizeInCellsY();
-    occupancyGrid.info.origin.position.x    = costmap->getOriginX();
-    occupancyGrid.info.origin.position.y    = costmap->getOriginY();
+nav_msgs::msg::OccupancyGrid PYIFController::getOccupancyGridMsg() {
+    nav_msgs::msg::OccupancyGrid occupancy_grid = nav_msgs::msg::OccupancyGrid();
+    std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> lock(*(costmap_->getMutex()));
+    occupancy_grid.info.resolution           = costmap_->getResolution();
+    occupancy_grid.info.width                = costmap_->getSizeInCellsX();
+    occupancy_grid.info.height               = costmap_->getSizeInCellsY();
+    occupancy_grid.info.origin.position.x    = costmap_->getOriginX();
+    occupancy_grid.info.origin.position.y    = costmap_->getOriginY();
 
-    signed char* costArrayPtr = (signed char*) costmap->getCharMap();
-    unsigned int costArrayLen = occupancyGrid.info.width * occupancyGrid.info.height;
+    signed char* cost_array_ptr = (signed char*) costmap_->getCharMap();
+    unsigned int cost_array_len = occupancy_grid.info.width * occupancy_grid.info.height;
 
-    std::vector<signed char> costArray(costArrayPtr, costArrayPtr + costArrayLen);
+    std::vector<signed char> costArray(cost_array_ptr, cost_array_ptr + cost_array_len);
 
-    occupancyGrid.data = costArray;
+    occupancy_grid.data = costArray;
 
-    return occupancyGrid;
+    return occupancy_grid;
 }
 
-geometry_msgs::msg::TwistStamped PYIFController::computeVelocityCommands(
-    const geometry_msgs::msg::PoseStamped& pose,
-    const geometry_msgs::msg::Twist& twist,
-    nav2_core::GoalChecker*) 
-{ 
-    // auto start = std::chrono::system_clock::now();
-    nav_msgs::msg::OccupancyGrid occupancyGrid = PYIFController::getOccupancyGridMsg();
+geometry_msgs::msg::TwistStamped PYIFController::computeVelocityCommands( const geometry_msgs::msg::PoseStamped& pose,
+                                                                          const geometry_msgs::msg::Twist& twist,
+                                                                          nav2_core::GoalChecker*) {
 
-    static PyObject* pyOccupancyGrid;
+    nav_msgs::msg::OccupancyGrid occupancy_grid = PYIFController::getOccupancyGridMsg();
 
-    if (pyOccupancyGrid == NULL) {
-      pyOccupancyGrid = pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(occupancyGrid);
+    static PyObject* py_occupancy_grid;
+
+    if (py_occupancy_grid == NULL) {
+      py_occupancy_grid = pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(occupancy_grid);
     }
     else 
-      pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(occupancyGrid, pyOccupancyGrid);
+      pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(occupancy_grid, py_occupancy_grid);
     
-    static PyObject* pyPose;
+    static PyObject* py_pose;
 
-    if (pyPose == NULL) {
-      pyPose = pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(pose);
+    if (py_pose == NULL) {
+      py_pose = pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(pose);
     }
     else 
-      pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(pose, pyPose);
+      pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(pose, py_pose);
 
-    static PyObject* pyTwist;
+    static PyObject* py_twist;
 
-    if (pyTwist == NULL) {
-      pyTwist = pyif::GeoMsgs::PyTwist_FromTwist(twist);
+    if (py_twist == NULL) {
+      py_twist = pyif::GeoMsgs::PyTwist_FromTwist(twist);
     }
     else 
-      pyif::GeoMsgs::PyTwist_FromTwist(twist, pyTwist);
+      pyif::GeoMsgs::PyTwist_FromTwist(twist, py_twist);
 
-    static PyObject* pyArgs;
+    static PyObject* py_args;
 
-    if (pyArgs == NULL) {
-      pyArgs = PyTuple_New(3);
-      PyTuple_SetItem(pyArgs, 0, pyOccupancyGrid);
-      PyTuple_SetItem(pyArgs, 1, pyPose);
-      PyTuple_SetItem(pyArgs, 2, pyTwist);
+    if (py_args == NULL) {
+      py_args = PyTuple_New(3);
+      PyTuple_SetItem(py_args, 0, py_occupancy_grid);
+      PyTuple_SetItem(py_args, 1, py_pose);
+      PyTuple_SetItem(py_args, 2, py_twist);
     }
 
-    static PyObject* pyFunc;
+    static PyObject* py_py_func;
 
-    if (pyFunc == NULL)
-      pyFunc = pyif::PyMap::GetFunction(python_module_, compute_velocity_commands_);
+    if (py_py_func == NULL)
+      py_py_func = pyif::PyMap::GetFunction(python_module_, compute_velocity_commands_);
 
-    // auto end = std::chrono::system_clock::now();
-    // std::cout << " compute velocity commands convert " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
-    // auto start2 = std::chrono::system_clock::now();
-    PyObject* pyTwistStamped = PyObject_CallObject(pyFunc, pyArgs);
-    // auto end2 = std::chrono::system_clock::now();
-    // std::cout << " compute velocity commands call " << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() << std::endl;
+    PyObject* py_twistStamped = PyObject_CallObject(py_py_func, py_args);
 
-    auto twistStamped = pyif::GeoMsgs::PyTwistStamped_AsTwistStamped(pyTwistStamped);
+    auto twistStamped = pyif::GeoMsgs::PyTwistStamped_AsTwistStamped(py_twistStamped);
 
     return twistStamped;
 }

@@ -27,28 +27,28 @@ PyObject* StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppSta
     return pyStamp;
 }
 
-std_msgs::msg::Header StdMsgs::PyHeader_AsHeader(PyObject* pyHeader) {
-    std_msgs::msg::Header cppHeader = std_msgs::msg::Header();
+std_msgs::msg::Header StdMsgs::PyHeader_AsHeader(PyObject* py_header) {
+    std_msgs::msg::Header cpp_header = std_msgs::msg::Header();
 
-    cppHeader.stamp = PyStamp_AsStamp(PyObject_GetAttrString(pyHeader, "_stamp"));
-    cppHeader.frame_id = PyUnicode_AsUTF8(PyObject_GetAttrString(pyHeader, "_frame_id"));
+    cpp_header.stamp = PyStamp_AsStamp(PyObject_GetAttrString(py_header, "_stamp"));
+    cpp_header.frame_id = PyUnicode_AsUTF8(PyObject_GetAttrString(py_header, "_frame_id"));
 
-    return cppHeader;
+    return cpp_header;
 }
 
-PyObject* StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader) {
-    if (pyHeader == NULL) {
+PyObject* StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cpp_header, PyObject* py_header) {
+    if (py_header == NULL) {
         PyObject* header_class = pyif::PyMap::GetFunction("std_msgs.msg", "Header");
-        pyHeader = PyObject_CallObject(header_class, NULL);
+        py_header = PyObject_CallObject(header_class, NULL);
         Py_XDECREF(header_class);
     }
 
-    PyObject_SetAttrString(pyHeader, "_stamp", PyStamp_FromStamp(cppHeader.stamp, PyObject_GetAttrString(pyHeader, "_stamp")));
-    PyObject_SetAttrString(pyHeader, "_frame_id", PyUnicode_FromString(cppHeader.frame_id.c_str()));
+    PyObject_SetAttrString(py_header, "_stamp", PyStamp_FromStamp(cpp_header.stamp, PyObject_GetAttrString(py_header, "_stamp")));
+    PyObject_SetAttrString(py_header, "_frame_id", PyUnicode_FromString(cpp_header.frame_id.c_str()));
 
-    return pyHeader;
+    return py_header;
 }
 
-}; // namespace pyif
+} // namespace pyif
 
 #endif // PYIF_STD_MSGS_HPP

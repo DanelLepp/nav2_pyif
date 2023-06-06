@@ -1,16 +1,16 @@
 #ifndef PYIF_HPP
 #define PYIF_HPP
 
-#include <Python.h>
-#include <dlfcn.h>
-
-#define Py_DEBUG
-#define PY_SSIZE_T_CLEAN
-
 #include <unordered_map>
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <dlfcn.h>
+
+#include <Python.h>
+
+#define Py_DEBUG
+#define PY_SSIZE_T_CLEAN
 
 namespace pyif {
 
@@ -18,135 +18,116 @@ class PyMap {
     private:
         class PyModule {
             public:
-                PyObject* pyModule = NULL;
-                std::unordered_map<std::string, PyObject*> functions;
-
-                PyModule(std::string moduleName) {
-                    this->pyModule = PyImport_ImportModule(moduleName.c_str());
+                PyModule(std::string module_name) {
+                    this->py_module_ = PyImport_ImportModule(module_name.c_str());
                 }
                 
                 ~PyModule() {
-                    Py_XDECREF(pyModule);
-                    for (auto function : functions) {
+                    Py_XDECREF(py_module_);
+                    for (auto function : functions_) {
                         Py_XDECREF(function.second);
                     }
                 }
 
-                PyObject* GetFunction(std::string functionName) {
-                    auto function = functions.find(functionName);
+                PyObject* GetFunction(std::string function_name) {
+                    auto function = functions_.find(function_name);
 
-                    if (function == functions.end()) {
-                        function = functions.insert({functionName, PyObject_GetAttrString(pyModule, functionName.c_str())}).first;
+                    if (function == functions_.end()) {
+                        function = functions_.insert({function_name, PyObject_GetAttrString(py_module_, function_name.c_str())}).first;
                     }
 
                     return function->second;
                 }
+
+            private:
+                PyObject* py_module_ = NULL;
+                std::unordered_map<std::string, PyObject*> functions_;
         };
 
-        static std::unordered_map<std::string, std::shared_ptr<PyModule>> modules;
-
     public:
-        static void Init(std::vector<std::pair<std::string, std::string>> modulesFunctions) {
+        static void Init(std::vector<std::pair<std::string, std::string>> modules_functions) {
 
             // Load the python library
             dlopen(PYTHON_LIB, RTLD_LAZY | RTLD_GLOBAL);
 
             Py_Initialize();
 
-            for (auto moduleFunction : modulesFunctions) {
-                GetFunction(moduleFunction.first, moduleFunction.second);
+            for (auto module_function : modules_functions) {
+                GetFunction(module_function.first, module_function.second);
             }
         }
 
         static void DeInit() {
-            for (auto module : modules) {
+            for (auto module : modules_) {
                 module.second->~PyModule();
             }
 
             Py_Finalize();
         }
 
-        static std::shared_ptr<PyModule> GetModule(std::string moduleName) {
-            auto module = modules.find(moduleName);
+        static std::shared_ptr<PyModule> GetModule(std::string module_name) {
+            auto module = modules_.find(module_name);
             
-            if (module == modules.end()) {
-                module = modules.insert({moduleName, std::shared_ptr<PyModule>(new PyModule(moduleName))}).first;
+            if (module == modules_.end()) {
+                module = modules_.insert({module_name, std::shared_ptr<PyModule>(new PyModule(module_name))}).first;
             }
 
             return module->second;
         }
 
-        static PyObject* GetFunction(std::string moduleName, std::string functionName) {
-            auto module = GetModule(moduleName);
+        static PyObject* GetFunction(std::string module_name, std::string function_name) {
+            auto module = GetModule(module_name);
 
             if (module == NULL) {
-                std::cout << "module " << moduleName << " == NULL" << std::endl;
+                std::cout << "module " << module_name << " == NULL" << std::endl;
                 return NULL;
             }
             else {
-                return module->GetFunction(functionName);
+                return module->GetFunction(function_name);
             }
         }
-
-    //     template <typename input_T, typename output_T> 
-    //     constexpr output_T Convert(input_T input, PyObject* optionalInput = NULL) {
-    //         if(std::is_same_v<input_T, PyObject*>) {
-    //             return MsgFromPython(input);
-    //         }
-    //         else if(std::is_same_v<output_T, PyObject*>) {
-    //             return MsgToPython(input, optionalInput);
-    //         }
-    //     }
-
-    // private:
-    //     template <typename T> 
-    //     constexpr PyObject* MsgToPython(T srcMsg, PyObject* srcObject) {
-    //         if (std::is_same_v<T, builtin_interfaces::msg::Time>) {
-    //             return stdMsgs->PyStamp_FromStamp(srcMsg, srcObject);
-    //         } else if(std::is_same_v<T, std_msgs::msg::Header>) {
-    //             return stdMsgs->PyHeader_FromHeader(srcMsg, srcObject);
-    //         }
-    //     }
-
-    //     template <typename T> 
-    //     constexpr T MsgFromPython(PyObject* srcObject) {
-    //         if(std::is_same_v<T, builtin_interfaces::msg::Time>) {
-    //             return stdMsgs->PyStamp_AsStamp(srcObject);
-    //         } else if(std::is_same_v<T, std_msgs::msg::Header>) {
-    //             return stdMsgs->PyHeader_AsHeader(srcObject);
-    //         }
-    //     }
+    
+    private:
+        inline static std::unordered_map<std::string, std::shared_ptr<PyModule>> modules_;
 };
 
-class MsgsBase {
+class PyConvert {
     public:
-        friend PyObject* PyMap::GetFunction(std::string moduleName, std::string functionName);
+        template <typename input_T, typename output_T> 
+        constexpr output_T Convert(input_T input, PyObject* optional_input = NULL);
+
+    private:
+        template <typename T> 
+        constexpr PyObject* MsgToPython(T src_msg, PyObject* src_object);
+
+        template <typename T> 
+        constexpr T MsgFromPython(PyObject* src_object);
 };
 
-class StdMsgs : public MsgsBase {
+class StdMsgs {
     public:
-        static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp);
+        static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* py_stamp);
 
-        static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp);
+        static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cpp_stamp, PyObject* py_stamp);
 
-        static std_msgs::msg::Header PyHeader_AsHeader(PyObject* pyHeader);
+        static std_msgs::msg::Header PyHeader_AsHeader(PyObject* py_header);
 
-        static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader);
+        static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cpp_header, PyObject* py_header);
 };
 
-class GeoMsgs : public MsgsBase {
+class GeoMsgs {
     public:
-        static geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* pyVector3);
+        static geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* py_vector3);
 
-        static PyObject* PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cppVector3, PyObject* pyVector3);
+        static PyObject* PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cpp_vector3, PyObject* py_vector3);
 
-        static geometry_msgs::msg::Point PyPoint_AsPoint(PyObject* pyPoint);
+        static geometry_msgs::msg::Point PyPoint_AsPoint(PyObject* py_point);
 
-        static PyObject* PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* pyPoint);
+        static PyObject* PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* py_point);
 
-        static geometry_msgs::msg::Quaternion PyOrientation_AsOrientation(PyObject* pyOrientation);
+        static geometry_msgs::msg::Quaternion PyOrientation_AsOrientation(PyObject* py_orientation);
 
-        static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cppOrientation, PyObject* pyOrientation);
+        static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cpp_orientation, PyObject* py_orientation);
 
         static geometry_msgs::msg::Pose PyPose_AsPose(PyObject* pyPose);
 
@@ -165,7 +146,7 @@ class GeoMsgs : public MsgsBase {
         static PyObject* PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped);
 };
 
-class NavMsgs : public MsgsBase {
+class NavMsgs {
     public:
         static nav_msgs::msg::MapMetaData PyMapMetaData_AsMapMetaData(PyObject* pyMapMetaData);
 
@@ -180,8 +161,6 @@ class NavMsgs : public MsgsBase {
         static PyObject* PyPath_FromPath(const nav_msgs::msg::Path& cppPath, PyObject* pyPath);
 };
 
-}; // namespace pyif
-
-std::unordered_map<std::string, std::shared_ptr<pyif::PyMap::PyModule>> pyif::PyMap::modules;
+} // namespace pyif
 
 #endif // PYIF_HPP

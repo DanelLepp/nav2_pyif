@@ -2,6 +2,7 @@
 #define PYIF_NAV_MSGS_HPP
 
 #include "python_interface.hpp"
+
 #include "std_msgs.hpp"
 #include "geometry_msgs.hpp"
 
@@ -125,6 +126,6 @@ PyObject* NavMsgs::PyPath_FromPath(const nav_msgs::msg::Path& cppPath, PyObject*
     return pyPath;
 }
 
-}; // namespace pyif
+} // namespace pyif
 
 #endif // PYIF_NAV_MSGS_HPP
