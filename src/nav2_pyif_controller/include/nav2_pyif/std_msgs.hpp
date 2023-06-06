@@ -1,14 +1,14 @@
 #ifndef STD_MSGS_PY_WRAPPER_HPP
 #define STD_MSGS_PY_WRAPPER_HPP
 
-#include "python3.10/Python.h"
+#include "python_interface.hpp"
 
 #include "std_msgs/msg/header.hpp"
 #include "builtin_interfaces/msg/time.hpp"
 
-#include "pyif.hpp"
-
-static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp) {
+namespace pyif {
+    
+builtin_interfaces::msg::Time StdMsgs::PyStamp_AsStamp(PyObject* pyStamp) {
     builtin_interfaces::msg::Time cppStamp = builtin_interfaces::msg::Time ();
 
     cppStamp.sec = PyLong_AsLong(PyObject_GetAttrString(pyStamp, "_sec"));
@@ -17,9 +17,9 @@ static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp) {
     return cppStamp;
 }
 
-static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp) {
+PyObject* StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp) {
     if (pyStamp == NULL) {
-        PyObject* time_class = PYIF::GetFunction("builtin_interfaces.msg", "Time");
+        PyObject* time_class = PyMap::GetFunction("builtin_interfaces.msg", "Time");
         pyStamp = PyObject_CallObject(time_class, NULL);
         Py_XDECREF(time_class);
     }
@@ -30,7 +30,7 @@ static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp
     return pyStamp;
 }
 
-static std_msgs::msg::Header PyHeader_AsHeader(PyObject* pyHeader) {
+std_msgs::msg::Header StdMsgs::PyHeader_AsHeader(PyObject* pyHeader) {
     std_msgs::msg::Header cppHeader = std_msgs::msg::Header();
 
     cppHeader.stamp = PyStamp_AsStamp(PyObject_GetAttrString(pyHeader, "_stamp"));
@@ -39,9 +39,9 @@ static std_msgs::msg::Header PyHeader_AsHeader(PyObject* pyHeader) {
     return cppHeader;
 }
 
-static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader) {
+PyObject* StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader) {
     if (pyHeader == NULL) {
-        PyObject* header_class = PYIF::GetFunction("std_msgs.msg", "Header");
+        PyObject* header_class = pyif::PyMap::GetFunction("std_msgs.msg", "Header");
         pyHeader = PyObject_CallObject(header_class, NULL);
         Py_XDECREF(header_class);
     }
@@ -52,5 +52,6 @@ static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyO
     return pyHeader;
 }
 
+}; // namespace pyif
 
 #endif // STD_MSGS_PY_WRAPPER_HPP

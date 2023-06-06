@@ -1,18 +1,12 @@
 #include "nav2_pyif_controller/nav2_pyif_controller.hpp"
-#include "python_wrappers/pyif.hpp"
-#include "python_wrappers/nav_msgs.hpp"
-#include "python_wrappers/geometry_msgs.hpp"
 #include "nav2_util/node_utils.hpp"
-#include <dlfcn.h>
 
-#define Py_DEBUG
-#define PY_SSIZE_T_CLEAN
+#include "nav2_pyif/nav2_pyif.hpp"
 
 namespace nav2_pyif_controller {
 
 PYIFController::PYIFController()
 {
-  dlopen("libpython3.10.so", RTLD_LAZY | RTLD_GLOBAL);
 }
 
 PYIFController::~PYIFController()
@@ -42,13 +36,7 @@ void PYIFController::configure( const rclcpp_lifecycle::LifecycleNode::WeakPtr& 
   node->get_parameter(plugin_name_ + ".python_delegates.set_speed_limit", set_speed_limit_);
   node->get_parameter(plugin_name_ + ".python_delegates.compute_velocity_commands", compute_velocity_commands_);
 
-  RCLCPP_INFO(
-  logger_,
-  "Configuring controller: %s of type "
-  "nav2_pyif_controller::PYIFController",
-  plugin_name_.c_str());
-
-  PYIF::Init({
+  pyif::PyMap::Init({
     {python_module_, set_plan_},
     {python_module_, set_speed_limit_},
     {python_module_, compute_velocity_commands_}
@@ -56,10 +44,12 @@ void PYIFController::configure( const rclcpp_lifecycle::LifecycleNode::WeakPtr& 
 
   RCLCPP_INFO(
   logger_,
-  "python_module: %s\n"
+  "Configuring controller: %s using:\n"
+  "python_module: %s\npython_delegates:\n"
   "set_plan: %s\n"
   "set_speed_limit: %s\n"
   "compute_velocity_commands: %s\n",
+  plugin_name_.c_str(),
   python_module_.c_str(),
   set_plan_.c_str(),
   set_speed_limit_.c_str(),
@@ -95,11 +85,12 @@ void PYIFController::cleanup()
     "nav2_pyif_controller::PYIFController",
     plugin_name_.c_str());
 
-  PYIF::DeInit();
+  pyif::PyMap::DeInit();
 }
 
 void PYIFController::setPlan(const nav_msgs::msg::Path & path) 
 {
+    // auto start = std::chrono::system_clock::now();
     // RCLCPP_INFO(logger_, "setPlan");
     globalPath = path;
 
@@ -107,10 +98,10 @@ void PYIFController::setPlan(const nav_msgs::msg::Path & path)
     
     if (pyGlobalPath == NULL) {
         std::cout << "pyGlobalPath is NULL" << std::endl;
-        pyGlobalPath = PyPath_FromPath(path);
+        pyGlobalPath = pyif::NavMsgs::PyPath_FromPath(path);
     }
     else
-        PyPath_FromPath(path, pyGlobalPath);
+        pyif::NavMsgs::PyPath_FromPath(path, pyGlobalPath);
 
     if (pyGlobalPath == NULL) {
         std::cout << "pyGlobalPath is NULL" << std::endl;
@@ -128,14 +119,20 @@ void PYIFController::setPlan(const nav_msgs::msg::Path & path)
 
     if (func_setPath == NULL) {
         std::cout << "func_setPath is NULL" << std::endl;
-        func_setPath = PYIF::GetFunction(python_module_, set_plan_);
+        func_setPath = pyif::PyMap::GetFunction(python_module_, set_plan_);
     }
+    // auto end = std::chrono::system_clock::now();
+    // std::cout << " set plan convert " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
 
+    // auto start2 = std::chrono::system_clock::now();
     PyObject_CallObject(func_setPath, arguments);
+    // auto end2 = std::chrono::system_clock::now();
+    // std::cout << " set plan call" << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() << std::endl;
 }
 
 void PYIFController::setSpeedLimit(const double& speed_limit, const bool & is_percentage) 
 {
+  // auto start = std::chrono::system_clock::now();
   static PyObject* arguments;
   if (arguments == NULL) {
     arguments = PyTuple_New(2);
@@ -145,9 +142,13 @@ void PYIFController::setSpeedLimit(const double& speed_limit, const bool & is_pe
 
   static PyObject* func_getVelocity;
   if (func_getVelocity == NULL)
-    func_getVelocity = PYIF::GetFunction(python_module_, set_speed_limit_);
-
+    func_getVelocity = pyif::PyMap::GetFunction(python_module_, set_speed_limit_);
+  // auto end = std::chrono::system_clock::now();
+  // std::cout << " set speed limit convert " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+  // auto start2 = std::chrono::system_clock::now();
   PyObject_CallObject(func_getVelocity, arguments);
+  // auto end2 = std::chrono::system_clock::now();
+  // std::cout << " set speed limit call " << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() << std::endl;
 }
 
 nav_msgs::msg::OccupancyGrid PYIFController::getOccupancyGridMsg()
@@ -174,32 +175,33 @@ geometry_msgs::msg::TwistStamped PYIFController::computeVelocityCommands(
     const geometry_msgs::msg::PoseStamped& pose,
     const geometry_msgs::msg::Twist& twist,
     nav2_core::GoalChecker*) 
-{
+{ 
+    // auto start = std::chrono::system_clock::now();
     nav_msgs::msg::OccupancyGrid occupancyGrid = PYIFController::getOccupancyGridMsg();
 
     static PyObject* pyOccupancyGrid;
 
     if (pyOccupancyGrid == NULL) {
-      pyOccupancyGrid = PyOccupancyGrid_FromOccupancyGrid(occupancyGrid);
+      pyOccupancyGrid = pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(occupancyGrid);
     }
     else 
-      PyOccupancyGrid_FromOccupancyGrid(occupancyGrid, pyOccupancyGrid);
+      pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(occupancyGrid, pyOccupancyGrid);
     
     static PyObject* pyPose;
 
     if (pyPose == NULL) {
-      pyPose = PyPoseStamped_FromPoseStamped(pose);
+      pyPose = pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(pose);
     }
     else 
-      PyPoseStamped_FromPoseStamped(pose, pyPose);
+      pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(pose, pyPose);
 
     static PyObject* pyTwist;
 
     if (pyTwist == NULL) {
-      pyTwist = PyTwist_FromTwist(twist);
+      pyTwist = pyif::GeoMsgs::PyTwist_FromTwist(twist);
     }
     else 
-      PyTwist_FromTwist(twist, pyTwist);
+      pyif::GeoMsgs::PyTwist_FromTwist(twist, pyTwist);
 
     static PyObject* pyArgs;
 
@@ -213,11 +215,16 @@ geometry_msgs::msg::TwistStamped PYIFController::computeVelocityCommands(
     static PyObject* pyFunc;
 
     if (pyFunc == NULL)
-      pyFunc = PYIF::GetFunction(python_module_, compute_velocity_commands_);
+      pyFunc = pyif::PyMap::GetFunction(python_module_, compute_velocity_commands_);
 
+    // auto end = std::chrono::system_clock::now();
+    // std::cout << " compute velocity commands convert " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+    // auto start2 = std::chrono::system_clock::now();
     PyObject* pyTwistStamped = PyObject_CallObject(pyFunc, pyArgs);
+    // auto end2 = std::chrono::system_clock::now();
+    // std::cout << " compute velocity commands call " << std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() << std::endl;
 
-    auto twistStamped = PyTwistStamped_AsTwistStamped(pyTwistStamped);
+    auto twistStamped = pyif::GeoMsgs::PyTwistStamped_AsTwistStamped(pyTwistStamped);
 
     return twistStamped;
 }

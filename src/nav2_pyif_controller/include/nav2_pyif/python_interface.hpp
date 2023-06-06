@@ -1,7 +1,8 @@
 #ifndef NAV2_PY_WRAPPER_HPP
 #define NAV2_PY_WRAPPER_HPP
 
-#include "python3.10/Python.h"
+#include <Python.h>
+#include <dlfcn.h>
 
 #define Py_DEBUG
 #define PY_SSIZE_T_CLEAN
@@ -11,9 +12,9 @@
 #include <memory>
 #include <vector>
 
-// This class takes the usual 200ms to load the python function the first time but every time after that it takes under 1us (~300ns)
-// This makes getting python functions almost 1e6 times faster 
-class PYIF {
+namespace pyif {
+
+class PyMap {
     private:
         class PyModule {
             public:
@@ -46,6 +47,10 @@ class PYIF {
 
     public:
         static void Init(std::vector<std::pair<std::string, std::string>> modulesFunctions) {
+
+            // Load the python library
+            dlopen(PYTHON_LIB, RTLD_LAZY | RTLD_GLOBAL);
+
             Py_Initialize();
 
             for (auto moduleFunction : modulesFunctions) {
@@ -113,5 +118,70 @@ class PYIF {
     //     }
 };
 
-std::unordered_map<std::string, std::shared_ptr<PYIF::PyModule>> PYIF::modules;
+class MsgsBase {
+    public:
+        friend PyObject* PyMap::GetFunction(std::string moduleName, std::string functionName);
+};
+
+class StdMsgs : public MsgsBase {
+    public:
+        static builtin_interfaces::msg::Time PyStamp_AsStamp(PyObject* pyStamp);
+
+        static PyObject* PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp);
+
+        static std_msgs::msg::Header PyHeader_AsHeader(PyObject* pyHeader);
+
+        static PyObject* PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, PyObject* pyHeader);
+};
+
+class GeoMsgs : public MsgsBase {
+    public:
+        static geometry_msgs::msg::Vector3 PyVector3_AsVector3(PyObject* pyVector3);
+
+        static PyObject* PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cppVector3, PyObject* pyVector3);
+
+        static geometry_msgs::msg::Point PyPoint_AsPoint(PyObject* pyPoint);
+
+        static PyObject* PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* pyPoint);
+
+        static geometry_msgs::msg::Quaternion PyOrientation_AsOrientation(PyObject* pyOrientation);
+
+        static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cppOrientation, PyObject* pyOrientation);
+
+        static geometry_msgs::msg::Pose PyPose_AsPose(PyObject* pyPose);
+
+        static PyObject* PyPose_FromPose(const geometry_msgs::msg::Pose& cppPose, PyObject* pyPose);
+
+        static geometry_msgs::msg::PoseStamped PyPoseStamped_AsPoseStamped(PyObject* pyPoseStamped);
+
+        static PyObject* PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cppPoseStamped, PyObject* pyPoseStamped);
+
+        static geometry_msgs::msg::Twist PyTwist_AsTwist(PyObject* pyTwist);
+
+        static PyObject* PyTwist_FromTwist(const geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist);
+
+        static geometry_msgs::msg::TwistStamped PyTwistStamped_AsTwistStamped(PyObject* pyTwistStamped);
+
+        static PyObject* PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped);
+};
+
+class NavMsgs : public MsgsBase {
+    public:
+        static nav_msgs::msg::MapMetaData PyMapMetaData_AsMapMetaData(PyObject* pyMapMetaData);
+
+        static PyObject* PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData& cppMapMetaData, PyObject* pyMapMetaData);
+
+        static nav_msgs::msg::OccupancyGrid PyOccupancyGrid_AsOccupancyGrid(PyObject* pyOccupancyGrid);
+
+        static PyObject* PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::OccupancyGrid& cppOccupancyGrid, PyObject* pyOccupancyGrid);
+
+        static nav_msgs::msg::Path PyPath_AsPath(PyObject* pyPath);
+
+        static PyObject* PyPath_FromPath(const nav_msgs::msg::Path& cppPath, PyObject* pyPath);
+};
+
+}; // namespace pyif
+
+std::unordered_map<std::string, std::shared_ptr<pyif::PyMap::PyModule>> pyif::PyMap::modules;
+
 #endif // NAV2_PY_WRAPPER_HPP

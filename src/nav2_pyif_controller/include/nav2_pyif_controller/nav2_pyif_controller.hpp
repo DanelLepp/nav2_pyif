@@ -49,6 +49,8 @@ class PYIFController : public nav2_core::Controller
         nav2_costmap_2d::Costmap2D* costmap;
 
         nav_msgs::msg::OccupancyGrid getOccupancyGridMsg();
+
+        // dlloader::DLLoader dlloader(PYTHON_PATH);
 };
 
 } // namespace nav2_pyif_controller
