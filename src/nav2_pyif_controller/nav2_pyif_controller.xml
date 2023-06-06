@@ -2,7 +2,7 @@
     <library path="nav2_pyif_controller">
         <class type="nav2_pyif_controller::PYIFController" base_class_type="nav2_core::Controller">
             <description>
-                Wrapper for python controller.
+                Nav2 Python Interface (PYIF) Controller Plugin.
             </description>
         </class>
     </library>

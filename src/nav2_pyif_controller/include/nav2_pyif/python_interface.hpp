@@ -1,5 +1,5 @@
-#ifndef NAV2_PY_WRAPPER_HPP
-#define NAV2_PY_WRAPPER_HPP
+#ifndef PYIF_HPP
+#define PYIF_HPP
 
 #include <Python.h>
 #include <dlfcn.h>
@@ -184,4 +184,4 @@ class NavMsgs : public MsgsBase {
 
 std::unordered_map<std::string, std::shared_ptr<pyif::PyMap::PyModule>> pyif::PyMap::modules;
 
-#endif // NAV2_PY_WRAPPER_HPP
+#endif // PYIF_HPP

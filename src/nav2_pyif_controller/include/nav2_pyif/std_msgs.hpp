@@ -1,10 +1,7 @@
-#ifndef STD_MSGS_PY_WRAPPER_HPP
-#define STD_MSGS_PY_WRAPPER_HPP
+#ifndef PYIF_STD_MSGS_HPP
+#define PYIF_STD_MSGS_HPP
 
 #include "python_interface.hpp"
-
-#include "std_msgs/msg/header.hpp"
-#include "builtin_interfaces/msg/time.hpp"
 
 namespace pyif {
     
@@ -54,4 +51,4 @@ PyObject* StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cppHeader, P
 
 }; // namespace pyif
 
-#endif // STD_MSGS_PY_WRAPPER_HPP
+#endif // PYIF_STD_MSGS_HPP

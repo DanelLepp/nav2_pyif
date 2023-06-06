@@ -1,12 +1,9 @@
-#ifndef NAV_MSGS_PY_WRAPPER_HPP
-#define NAV_MSGS_PY_WRAPPER_HPP
+#ifndef PYIF_NAV_MSGS_HPP
+#define PYIF_NAV_MSGS_HPP
 
 #include "python_interface.hpp"
 #include "std_msgs.hpp"
 #include "geometry_msgs.hpp"
-
-#include "nav_msgs/msg/path.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
 
 namespace pyif {
 
@@ -130,4 +127,4 @@ PyObject* NavMsgs::PyPath_FromPath(const nav_msgs::msg::Path& cppPath, PyObject*
 
 }; // namespace pyif
 
-#endif // NAV_MSGS_PY_WRAPPER_HPP
+#endif // PYIF_NAV_MSGS_HPP

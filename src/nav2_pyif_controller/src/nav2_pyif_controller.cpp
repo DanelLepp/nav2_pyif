@@ -1,7 +1,6 @@
 #include "nav2_pyif_controller/nav2_pyif_controller.hpp"
-#include "nav2_util/node_utils.hpp"
-
 #include "nav2_pyif/nav2_pyif.hpp"
+#include "nav2_util/node_utils.hpp"
 
 namespace nav2_pyif_controller {
 

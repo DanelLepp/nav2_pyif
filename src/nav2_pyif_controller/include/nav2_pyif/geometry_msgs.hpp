@@ -1,11 +1,8 @@
-#ifndef GEOMETRY_MSGS_PY_WRAPPER_HPP
-#define GEOMETRY_MSGS_PY_WRAPPER_HPP
+#ifndef PYIF_GEOMETRY_MSGS_HPP
+#define PYIF_GEOMETRY_MSGS_HPP
 
 #include "python_interface.hpp"
 #include "std_msgs.hpp"
-
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 
 namespace pyif {
 
@@ -188,4 +185,4 @@ PyObject* GeoMsgs::PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::Twi
 
 }; // namespace pyif
 
-#endif // GEOMETRY_MSGS_PY_WRAPPER_HPP
+#endif // PYIF_GEOMETRY_MSGS_HPP

@@ -1,9 +1,7 @@
-#ifndef NAV2_APF_CONTROLLER_HPP
-#define NAV2_APF_CONTROLLER_HPP
+#ifndef NAV2_PYIF_CONTROLLER_HPP
+#define NAV2_PYIF_CONTROLLER_HPP
 
 #include "nav2_core/controller.hpp"
-#include "nav2_msgs/msg/costmap.hpp"
-#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_pyif_controller {
 
@@ -55,4 +53,4 @@ class PYIFController : public nav2_core::Controller
 
 } // namespace nav2_pyif_controller
 
-#endif // NAV2_APF_CONTROLLER_HPP
+#endif // NAV2_PYIF_CONTROLLER_HPP
