@@ -86,102 +86,102 @@ PyObject* GeoMsgs::PyOrientation_FromOrientation(const geometry_msgs::msg::Quate
     return py_orientation;
 }
 
-geometry_msgs::msg::Pose GeoMsgs::PyPose_AsPose(PyObject* pyPose) {
-    geometry_msgs::msg::Pose cppPose = geometry_msgs::msg::Pose();
+geometry_msgs::msg::Pose GeoMsgs::PyPose_AsPose(PyObject* py_pose) {
+    geometry_msgs::msg::Pose cpp_pose = geometry_msgs::msg::Pose();
 
-    cppPose.position = PyPoint_AsPoint(PyObject_GetAttrString(pyPose, "_position"));
-    cppPose.orientation = PyOrientation_AsOrientation(PyObject_GetAttrString(pyPose, "_orientation"));
+    cpp_pose.position = PyPoint_AsPoint(PyObject_GetAttrString(py_pose, "_position"));
+    cpp_pose.orientation = PyOrientation_AsOrientation(PyObject_GetAttrString(py_pose, "_orientation"));
 
-    return cppPose;
+    return cpp_pose;
 }
 
-PyObject* GeoMsgs::PyPose_FromPose(const geometry_msgs::msg::Pose& cppPose, PyObject* pyPose = NULL) {
-    if (pyPose == NULL) {
+PyObject* GeoMsgs::PyPose_FromPose(const geometry_msgs::msg::Pose& cpp_pose, PyObject* py_pose = NULL) {
+    if (py_pose == NULL) {
         PyObject* pose_class = NULL;
         pose_class = PyMap::GetFunction("geometry_msgs.msg", "Pose");
 
-        pyPose = PyObject_CallObject(pose_class, NULL);
+        py_pose = PyObject_CallObject(pose_class, NULL);
         Py_XDECREF(pose_class);
     }
     
-    PyObject_SetAttrString(pyPose, "_position", PyPoint_FromPoint(cppPose.position, PyObject_GetAttrString(pyPose, "_position")));
-    PyObject_SetAttrString(pyPose, "_orientation", PyOrientation_FromOrientation(cppPose.orientation, PyObject_GetAttrString(pyPose, "_orientation")));
+    PyObject_SetAttrString(py_pose, "_position", PyPoint_FromPoint(cpp_pose.position, PyObject_GetAttrString(py_pose, "_position")));
+    PyObject_SetAttrString(py_pose, "_orientation", PyOrientation_FromOrientation(cpp_pose.orientation, PyObject_GetAttrString(py_pose, "_orientation")));
 
-    return pyPose;
+    return py_pose;
 }
 
-geometry_msgs::msg::PoseStamped GeoMsgs::PyPoseStamped_AsPoseStamped(PyObject* pyPoseStamped){
-    geometry_msgs::msg::PoseStamped cppPoseStamped = geometry_msgs::msg::PoseStamped();
+geometry_msgs::msg::PoseStamped GeoMsgs::PyPoseStamped_AsPoseStamped(PyObject* py_pose_stamped){
+    geometry_msgs::msg::PoseStamped cpp_pose_stamped = geometry_msgs::msg::PoseStamped();
 
-    cppPoseStamped.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(pyPoseStamped, "_header"));
-    cppPoseStamped.pose = PyPose_AsPose(PyObject_GetAttrString(pyPoseStamped, "_pose"));
+    cpp_pose_stamped.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(py_pose_stamped, "_header"));
+    cpp_pose_stamped.pose = PyPose_AsPose(PyObject_GetAttrString(py_pose_stamped, "_pose"));
 
 
-    return cppPoseStamped;
+    return cpp_pose_stamped;
 }
 
-PyObject* GeoMsgs::PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cppPoseStamped, PyObject* pyPoseStamped = NULL) {
-    if (pyPoseStamped == NULL) {
+PyObject* GeoMsgs::PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cpp_pose_stamped, PyObject* py_pose_stamped = NULL) {
+    if (py_pose_stamped == NULL) {
         PyObject* pose_stamped_class = NULL;
         pose_stamped_class = PyMap::GetFunction("geometry_msgs.msg", "PoseStamped");
 
-        pyPoseStamped = PyObject_CallObject(pose_stamped_class, NULL);
+        py_pose_stamped = PyObject_CallObject(pose_stamped_class, NULL);
         Py_XDECREF(pose_stamped_class);
     }
     
-    PyObject_SetAttrString(pyPoseStamped, "_header", StdMsgs::PyHeader_FromHeader(cppPoseStamped.header, PyObject_GetAttrString(pyPoseStamped, "_header")));
-    PyObject_SetAttrString(pyPoseStamped, "_pose", PyPose_FromPose(cppPoseStamped.pose, PyObject_GetAttrString(pyPoseStamped, "_pose")));
+    PyObject_SetAttrString(py_pose_stamped, "_header", StdMsgs::PyHeader_FromHeader(cpp_pose_stamped.header, PyObject_GetAttrString(py_pose_stamped, "_header")));
+    PyObject_SetAttrString(py_pose_stamped, "_pose", PyPose_FromPose(cpp_pose_stamped.pose, PyObject_GetAttrString(py_pose_stamped, "_pose")));
 
-    return pyPoseStamped;
+    return py_pose_stamped;
 }
 
-geometry_msgs::msg::Twist GeoMsgs::PyTwist_AsTwist(PyObject* pyTwist){
-    geometry_msgs::msg::Twist cppTwist = geometry_msgs::msg::Twist();
+geometry_msgs::msg::Twist GeoMsgs::PyTwist_AsTwist(PyObject* py_twist){
+    geometry_msgs::msg::Twist cpp_twist = geometry_msgs::msg::Twist();
 
-    cppTwist.linear = PyVector3_AsVector3(PyObject_GetAttrString(pyTwist, "_linear"));
-    cppTwist.angular = PyVector3_AsVector3(PyObject_GetAttrString(pyTwist, "_angular"));
+    cpp_twist.linear = PyVector3_AsVector3(PyObject_GetAttrString(py_twist, "_linear"));
+    cpp_twist.angular = PyVector3_AsVector3(PyObject_GetAttrString(py_twist, "_angular"));
 
-    return cppTwist;
+    return cpp_twist;
 }
 
-PyObject* GeoMsgs::PyTwist_FromTwist(const geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist = NULL) {
-    if (pyTwist == NULL) {
+PyObject* GeoMsgs::PyTwist_FromTwist(const geometry_msgs::msg::Twist& cpp_twist, PyObject* py_twist = NULL) {
+    if (py_twist == NULL) {
         PyObject* twist_class = pyif::PyMap::GetFunction("geometry_msgs.msg", "Twist");
 
-        pyTwist = PyObject_CallObject(twist_class, NULL);
+        py_twist = PyObject_CallObject(twist_class, NULL);
         Py_XDECREF(twist_class);
     }
 
-    PyObject_SetAttrString(pyTwist, "_linear", PyVector3_FromVector3(cppTwist.linear, PyObject_GetAttrString(pyTwist, "_linear")));
-    PyObject_SetAttrString(pyTwist, "_angular", PyVector3_FromVector3(cppTwist.angular, PyObject_GetAttrString(pyTwist, "_angular")));
+    PyObject_SetAttrString(py_twist, "_linear", PyVector3_FromVector3(cpp_twist.linear, PyObject_GetAttrString(py_twist, "_linear")));
+    PyObject_SetAttrString(py_twist, "_angular", PyVector3_FromVector3(cpp_twist.angular, PyObject_GetAttrString(py_twist, "_angular")));
 
-    return pyTwist;
+    return py_twist;
 }
 
-geometry_msgs::msg::TwistStamped GeoMsgs::PyTwistStamped_AsTwistStamped(PyObject* pyTwistStamped){
-    geometry_msgs::msg::TwistStamped cppTwistStamped = geometry_msgs::msg::TwistStamped();
+geometry_msgs::msg::TwistStamped GeoMsgs::PyTwistStamped_AsTwistStamped(PyObject* py_twist_stamped){
+    geometry_msgs::msg::TwistStamped cpp_twist_stamped = geometry_msgs::msg::TwistStamped();
 
-    if (pyTwistStamped != NULL) {
-        cppTwistStamped.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(pyTwistStamped, "_header"));
-        cppTwistStamped.twist = PyTwist_AsTwist(PyObject_GetAttrString(pyTwistStamped, "_twist"));
+    if (py_twist_stamped != NULL) {
+        cpp_twist_stamped.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(py_twist_stamped, "_header"));
+        cpp_twist_stamped.twist = PyTwist_AsTwist(PyObject_GetAttrString(py_twist_stamped, "_twist"));
     }
 
-    return cppTwistStamped;
+    return cpp_twist_stamped;
 }
 
-PyObject* GeoMsgs::PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped = NULL) {
-    if (pyTwistStamped == NULL) {
+PyObject* GeoMsgs::PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cpp_twist_stamped, PyObject* py_twist_stamped = NULL) {
+    if (py_twist_stamped == NULL) {
         PyObject* twist_stamped_class = NULL;
         twist_stamped_class = pyif::PyMap::GetFunction("geometry_msgs.msg", "TwistStamped");
 
-        pyTwistStamped = PyObject_CallObject(twist_stamped_class, NULL);
+        py_twist_stamped = PyObject_CallObject(twist_stamped_class, NULL);
         Py_XDECREF(twist_stamped_class);
     }
 
-    PyObject_SetAttrString(pyTwistStamped, "_header", StdMsgs::StdMsgs::PyHeader_FromHeader(cppTwistStamped.header, PyObject_GetAttrString(pyTwistStamped, "_header")));
-    PyObject_SetAttrString(pyTwistStamped, "_twist", PyTwist_FromTwist(cppTwistStamped.twist, PyObject_GetAttrString(pyTwistStamped, "_twist")));
+    PyObject_SetAttrString(py_twist_stamped, "_header", StdMsgs::StdMsgs::PyHeader_FromHeader(cpp_twist_stamped.header, PyObject_GetAttrString(py_twist_stamped, "_header")));
+    PyObject_SetAttrString(py_twist_stamped, "_twist", PyTwist_FromTwist(cpp_twist_stamped.twist, PyObject_GetAttrString(py_twist_stamped, "_twist")));
 
-    return pyTwistStamped;
+    return py_twist_stamped;
 }
 
 } // namespace pyif

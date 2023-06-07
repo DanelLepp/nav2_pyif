@@ -129,36 +129,36 @@ class GeoMsgs {
 
         static PyObject* PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cpp_orientation, PyObject* py_orientation);
 
-        static geometry_msgs::msg::Pose PyPose_AsPose(PyObject* pyPose);
+        static geometry_msgs::msg::Pose PyPose_AsPose(PyObject* py_pose);
 
-        static PyObject* PyPose_FromPose(const geometry_msgs::msg::Pose& cppPose, PyObject* pyPose);
+        static PyObject* PyPose_FromPose(const geometry_msgs::msg::Pose& cpp_pose, PyObject* py_pose);
 
-        static geometry_msgs::msg::PoseStamped PyPoseStamped_AsPoseStamped(PyObject* pyPoseStamped);
+        static geometry_msgs::msg::PoseStamped PyPoseStamped_AsPoseStamped(PyObject* py_pose_stamped);
 
-        static PyObject* PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cppPoseStamped, PyObject* pyPoseStamped);
+        static PyObject* PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cpp_pose_stamped, PyObject* py_pose_stamped);
 
-        static geometry_msgs::msg::Twist PyTwist_AsTwist(PyObject* pyTwist);
+        static geometry_msgs::msg::Twist PyTwist_AsTwist(PyObject* py_twist);
 
-        static PyObject* PyTwist_FromTwist(const geometry_msgs::msg::Twist& cppTwist, PyObject* pyTwist);
+        static PyObject* PyTwist_FromTwist(const geometry_msgs::msg::Twist& cpp_twist, PyObject* py_twist);
 
-        static geometry_msgs::msg::TwistStamped PyTwistStamped_AsTwistStamped(PyObject* pyTwistStamped);
+        static geometry_msgs::msg::TwistStamped PyTwistStamped_AsTwistStamped(PyObject* py_twist_stamped);
 
-        static PyObject* PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cppTwistStamped, PyObject* pyTwistStamped);
+        static PyObject* PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cpp_twist_stamped, PyObject* py_twist_stamped);
 };
 
 class NavMsgs {
     public:
-        static nav_msgs::msg::MapMetaData PyMapMetaData_AsMapMetaData(PyObject* pyMapMetaData);
+        static nav_msgs::msg::MapMetaData PyMapMetaData_AsMapMetaData(PyObject* py_map_metadata);
 
-        static PyObject* PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData& cppMapMetaData, PyObject* pyMapMetaData);
+        static PyObject* PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData& cpp_map_metadata, PyObject* py_map_metadata);
 
-        static nav_msgs::msg::OccupancyGrid PyOccupancyGrid_AsOccupancyGrid(PyObject* pyOccupancyGrid);
+        static nav_msgs::msg::OccupancyGrid PyOccupancyGrid_AsOccupancyGrid(PyObject* py_occupancy_grid);
 
-        static PyObject* PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::OccupancyGrid& cppOccupancyGrid, PyObject* pyOccupancyGrid);
+        static PyObject* PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::OccupancyGrid& cpp_occupancy_grid, PyObject* py_occupancy_grid);
 
-        static nav_msgs::msg::Path PyPath_AsPath(PyObject* pyPath);
+        static nav_msgs::msg::Path PyPath_AsPath(PyObject* py_path);
 
-        static PyObject* PyPath_FromPath(const nav_msgs::msg::Path& cppPath, PyObject* pyPath);
+        static PyObject* PyPath_FromPath(const nav_msgs::msg::Path& cpp_path, PyObject* py_path);
 };
 
 } // namespace pyif

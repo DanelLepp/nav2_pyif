@@ -36,7 +36,7 @@ add_library(${library_name} SHARED
   src/${library_name}.cpp
 )
 
-add_executable(apf_test src/apf_test.cpp src/nav2_pyif_controller.cpp)
+add_executable(apf_test test/apf_test.cpp src/nav2_pyif_controller.cpp)
 
 ament_target_dependencies(apf_test
   ${dependencies}

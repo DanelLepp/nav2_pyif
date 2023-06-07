@@ -5,26 +5,26 @@
 
 namespace pyif {
     
-builtin_interfaces::msg::Time StdMsgs::PyStamp_AsStamp(PyObject* pyStamp) {
-    builtin_interfaces::msg::Time cppStamp = builtin_interfaces::msg::Time ();
+builtin_interfaces::msg::Time StdMsgs::PyStamp_AsStamp(PyObject* py_stamp) {
+    builtin_interfaces::msg::Time cpp_stamp = builtin_interfaces::msg::Time ();
 
-    cppStamp.sec = PyLong_AsLong(PyObject_GetAttrString(pyStamp, "_sec"));
-    cppStamp.nanosec = PyLong_AsUnsignedLong(PyObject_GetAttrString(pyStamp, "_nanosec"));
+    cpp_stamp.sec = PyLong_AsLong(PyObject_GetAttrString(py_stamp, "_sec"));
+    cpp_stamp.nanosec = PyLong_AsUnsignedLong(PyObject_GetAttrString(py_stamp, "_nanosec"));
 
-    return cppStamp;
+    return cpp_stamp;
 }
 
-PyObject* StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cppStamp, PyObject* pyStamp) {
-    if (pyStamp == NULL) {
+PyObject* StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cpp_stamp, PyObject* py_stamp) {
+    if (py_stamp == NULL) {
         PyObject* time_class = PyMap::GetFunction("builtin_interfaces.msg", "Time");
-        pyStamp = PyObject_CallObject(time_class, NULL);
+        py_stamp = PyObject_CallObject(time_class, NULL);
         Py_XDECREF(time_class);
     }
     
-    PyObject_SetAttrString(pyStamp, "_sec", PyLong_FromLong(cppStamp.sec));
-    PyObject_SetAttrString(pyStamp, "_nanosec", PyLong_FromUnsignedLong(cppStamp.nanosec));
+    PyObject_SetAttrString(py_stamp, "_sec", PyLong_FromLong(cpp_stamp.sec));
+    PyObject_SetAttrString(py_stamp, "_nanosec", PyLong_FromUnsignedLong(cpp_stamp.nanosec));
     
-    return pyStamp;
+    return py_stamp;
 }
 
 std_msgs::msg::Header StdMsgs::PyHeader_AsHeader(PyObject* py_header) {
