@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'python_controller'
+package_name = 'apf_python_example'
 
 setup(
     name=package_name,

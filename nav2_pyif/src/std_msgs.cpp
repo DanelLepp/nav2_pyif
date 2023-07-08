@@ -1,11 +1,6 @@
-#ifndef PYIF_STD_MSGS_HPP
-#define PYIF_STD_MSGS_HPP
+#include "nav2_pyif/std_msgs.hpp"
 
-#include "python_interface.hpp"
-
-namespace pyif {
-    
-builtin_interfaces::msg::Time StdMsgs::PyStamp_AsStamp(PyObject* py_stamp) {
+builtin_interfaces::msg::Time pyif::StdMsgs::PyStamp_AsStamp(PyObject* py_stamp) {
     builtin_interfaces::msg::Time cpp_stamp = builtin_interfaces::msg::Time ();
 
     cpp_stamp.sec = PyLong_AsLong(PyObject_GetAttrString(py_stamp, "_sec"));
@@ -14,7 +9,7 @@ builtin_interfaces::msg::Time StdMsgs::PyStamp_AsStamp(PyObject* py_stamp) {
     return cpp_stamp;
 }
 
-PyObject* StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cpp_stamp, PyObject* py_stamp) {
+PyObject* pyif::StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cpp_stamp, PyObject* py_stamp) {
     if (py_stamp == NULL) {
         PyObject* time_class = PyMap::GetFunction("builtin_interfaces.msg", "Time");
         py_stamp = PyObject_CallObject(time_class, NULL);
@@ -27,7 +22,7 @@ PyObject* StdMsgs::PyStamp_FromStamp(const builtin_interfaces::msg::Time& cpp_st
     return py_stamp;
 }
 
-std_msgs::msg::Header StdMsgs::PyHeader_AsHeader(PyObject* py_header) {
+std_msgs::msg::Header pyif::StdMsgs::PyHeader_AsHeader(PyObject* py_header) {
     std_msgs::msg::Header cpp_header = std_msgs::msg::Header();
 
     cpp_header.stamp = PyStamp_AsStamp(PyObject_GetAttrString(py_header, "_stamp"));
@@ -36,7 +31,7 @@ std_msgs::msg::Header StdMsgs::PyHeader_AsHeader(PyObject* py_header) {
     return cpp_header;
 }
 
-PyObject* StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cpp_header, PyObject* py_header) {
+PyObject* pyif::StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cpp_header, PyObject* py_header) {
     if (py_header == NULL) {
         PyObject* header_class = pyif::PyMap::GetFunction("std_msgs.msg", "Header");
         py_header = PyObject_CallObject(header_class, NULL);
@@ -48,7 +43,3 @@ PyObject* StdMsgs::PyHeader_FromHeader(const std_msgs::msg::Header& cpp_header, 
 
     return py_header;
 }
-
-} // namespace pyif
-
-#endif // PYIF_STD_MSGS_HPP

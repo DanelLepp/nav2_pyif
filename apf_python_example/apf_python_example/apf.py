@@ -210,7 +210,6 @@ def computeVelocity(obstacle_vector, pose, twist):
 
     return cmd
 
-
 def computeVelocityCommands(occupancy_grid, pose, twist):
     cmd_vel = TwistStamped()
     net_force = computeRepulsiveForce(occupancy_grid, pose) + computeAttractiveForce(pose, goal_pose, position_all)

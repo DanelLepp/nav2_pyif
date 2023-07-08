@@ -20,7 +20,7 @@ controller_server:
       stateful: True
     FollowPath:
       plugin: "nav2_pyif_controller::PYIFController"
-      python_module: "python_controller.apf"
+      python_module: "apf_python_example.apf"
       python_delegates:
         set_plan: "setPath"
         set_speed_limit: "setSpeedLimit"

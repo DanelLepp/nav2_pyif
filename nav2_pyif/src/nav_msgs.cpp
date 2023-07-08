@@ -1,14 +1,6 @@
-#ifndef PYIF_NAV_MSGS_HPP
-#define PYIF_NAV_MSGS_HPP
+#include "nav2_pyif/nav_msgs.hpp"
 
-#include "python_interface.hpp"
-
-#include "std_msgs.hpp"
-#include "geometry_msgs.hpp"
-
-namespace pyif {
-
-nav_msgs::msg::MapMetaData NavMsgs::PyMapMetaData_AsMapMetaData(PyObject* py_map_metadata) {
+nav_msgs::msg::MapMetaData pyif::NavMsgs::PyMapMetaData_AsMapMetaData(PyObject* py_map_metadata) {
     nav_msgs::msg::MapMetaData cpp_map_metadata = nav_msgs::msg::MapMetaData();
 
     cpp_map_metadata.map_load_time =  StdMsgs::PyStamp_AsStamp(PyObject_GetAttrString(py_map_metadata, "_map_load_time"));
@@ -20,7 +12,7 @@ nav_msgs::msg::MapMetaData NavMsgs::PyMapMetaData_AsMapMetaData(PyObject* py_map
     return cpp_map_metadata;
 }
 
-PyObject* NavMsgs::PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData& cpp_map_metadata, PyObject* py_map_metadata = NULL) {
+PyObject* pyif::NavMsgs::PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaData& cpp_map_metadata, PyObject* py_map_metadata) {
     if (py_map_metadata == NULL) {
         PyObject* time_class = PyMap::GetFunction("nav_msgs.msg", "MapMetaData");
 
@@ -37,11 +29,11 @@ PyObject* NavMsgs::PyMapMetaData_FromMapMetaData(const nav_msgs::msg::MapMetaDat
     return py_map_metadata;
 }
 
-nav_msgs::msg::OccupancyGrid NavMsgs::PyOccupancyGrid_AsOccupancyGrid(PyObject* py_occupancy_grid) {
+nav_msgs::msg::OccupancyGrid pyif::NavMsgs::PyOccupancyGrid_AsOccupancyGrid(PyObject* py_occupancy_grid) {
     nav_msgs::msg::OccupancyGrid cpp_occupancy_grid = nav_msgs::msg::OccupancyGrid();
 
     cpp_occupancy_grid.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(py_occupancy_grid, "_header"));
-    cpp_occupancy_grid.info = NavMsgs::PyMapMetaData_AsMapMetaData(PyObject_GetAttrString(py_occupancy_grid, "_info"));
+    cpp_occupancy_grid.info = pyif::NavMsgs::PyMapMetaData_AsMapMetaData(PyObject_GetAttrString(py_occupancy_grid, "_info"));
     
     PyObject* pyData = PyObject_GetAttrString(py_occupancy_grid, "_data");
     Py_ssize_t size = PyList_Size(pyData);
@@ -54,7 +46,7 @@ nav_msgs::msg::OccupancyGrid NavMsgs::PyOccupancyGrid_AsOccupancyGrid(PyObject* 
     return cpp_occupancy_grid;
 }
 
-PyObject* NavMsgs::PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::OccupancyGrid& cpp_occupancy_grid, PyObject* py_occupancy_grid = NULL) {
+PyObject* pyif::NavMsgs::PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::OccupancyGrid& cpp_occupancy_grid, PyObject* py_occupancy_grid) {
     if (py_occupancy_grid == NULL) {
         PyObject* occupancyGrid_class = PyMap::GetFunction("nav_msgs.msg", "OccupancyGrid");
 
@@ -63,7 +55,7 @@ PyObject* NavMsgs::PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::Occupa
     }
 
     PyObject_SetAttrString(py_occupancy_grid, "_header", StdMsgs::PyHeader_FromHeader(cpp_occupancy_grid.header, PyObject_GetAttrString(py_occupancy_grid, "_header")));
-    PyObject_SetAttrString(py_occupancy_grid, "_info", NavMsgs::PyMapMetaData_FromMapMetaData(cpp_occupancy_grid.info, PyObject_GetAttrString(py_occupancy_grid, "_info")));
+    PyObject_SetAttrString(py_occupancy_grid, "_info", pyif::NavMsgs::PyMapMetaData_FromMapMetaData(cpp_occupancy_grid.info, PyObject_GetAttrString(py_occupancy_grid, "_info")));
 
     int size = cpp_occupancy_grid.data.size();
     PyObject* pyData = PyList_New((Py_ssize_t) size);
@@ -78,7 +70,7 @@ PyObject* NavMsgs::PyOccupancyGrid_FromOccupancyGrid(const nav_msgs::msg::Occupa
     return py_occupancy_grid;
 }
 
-nav_msgs::msg::Path NavMsgs::PyPath_AsPath(PyObject* py_path) {
+nav_msgs::msg::Path pyif::NavMsgs::PyPath_AsPath(PyObject* py_path) {
     nav_msgs::msg::Path cpp_path = nav_msgs::msg::Path();
 
     cpp_path.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(py_path, "_header"));
@@ -94,7 +86,7 @@ nav_msgs::msg::Path NavMsgs::PyPath_AsPath(PyObject* py_path) {
     return cpp_path;
 }
 
-PyObject* NavMsgs::PyPath_FromPath(const nav_msgs::msg::Path& cpp_path, PyObject* py_path = NULL) {
+PyObject* pyif::NavMsgs::PyPath_FromPath(const nav_msgs::msg::Path& cpp_path, PyObject* py_path) {
     if (py_path == NULL) {
         PyObject* path_class = PyMap::GetFunction("nav_msgs.msg", "Path");
 
@@ -118,14 +110,10 @@ PyObject* NavMsgs::PyPath_FromPath(const nav_msgs::msg::Path& cpp_path, PyObject
     Py_ssize_t size = cpp_path.poses.size();
     PyObject* py_poses = PyList_New(size);
     for (Py_ssize_t i = 0; i < size; i++) {
-        PyObject* py_pose_stamped = GeoMsgs::PyPoseStamped_FromPoseStamped(cpp_path.poses[i]);
+        PyObject* py_pose_stamped = GeoMsgs::PyPoseStamped_FromPoseStamped(cpp_path.poses[i], NULL);
         PyList_SetItem(py_poses, i, py_pose_stamped);
     }
     PyObject_SetAttrString(py_path, "_poses", py_poses);
 
     return py_path;
 }
-
-} // namespace pyif
-
-#endif // PYIF_NAV_MSGS_HPP

@@ -1,15 +1,9 @@
-#ifndef PYIF_GEOMETRY_MSGS_HPP
-#define PYIF_GEOMETRY_MSGS_HPP
+#include "nav2_pyif/geo_msgs.hpp"
 
-#include "python_interface.hpp"
+#define assertm(exp, msg) assert(((void)msg, exp))
 
-#include "std_msgs.hpp"
-
-namespace pyif {
-
-geometry_msgs::msg::Vector3 GeoMsgs::PyVector3_AsVector3(PyObject* py_vector3) {
-    geometry_msgs::msg::Vector3 cpp_vector3 = geometry_msgs::msg::Vector3();
-
+geometry_msgs::msg::Vector3 pyif::GeoMsgs::PyVector3_AsVector3(PyObject* py_vector3) {
+    geometry_msgs::msg::Vector3 cpp_vector3;
     cpp_vector3.x = PyFloat_AsDouble(PyObject_GetAttrString(py_vector3, "_x"));
     cpp_vector3.y = PyFloat_AsDouble(PyObject_GetAttrString(py_vector3, "_y"));
     cpp_vector3.z = PyFloat_AsDouble(PyObject_GetAttrString(py_vector3, "_z"));
@@ -17,14 +11,17 @@ geometry_msgs::msg::Vector3 GeoMsgs::PyVector3_AsVector3(PyObject* py_vector3) {
     return cpp_vector3;
 }
 
-PyObject* GeoMsgs::PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cpp_vector3, PyObject* py_vector3 = NULL) {
+// TODO: Replicate this for all geometry_msgs
+PyObject* pyif::GeoMsgs::PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cpp_vector3, PyObject* py_vector3) {
     if (py_vector3 == NULL) {
         PyObject* vector3_class = PyMap::GetFunction("geometry_msgs.msg", "Vector3");
 
         py_vector3 = PyObject_CallObject(vector3_class, NULL);
         Py_XDECREF(vector3_class);
     }
-    
+
+    assertm(py_vector3 != NULL, "py_vector3 is NULL");
+
     PyObject_SetAttrString(py_vector3, "_x", PyFloat_FromDouble(cpp_vector3.x));
     PyObject_SetAttrString(py_vector3, "_y", PyFloat_FromDouble(cpp_vector3.y));
     PyObject_SetAttrString(py_vector3, "_z", PyFloat_FromDouble(cpp_vector3.z));
@@ -32,7 +29,7 @@ PyObject* GeoMsgs::PyVector3_FromVector3(const geometry_msgs::msg::Vector3& cpp_
     return py_vector3;
 }
 
-geometry_msgs::msg::Point GeoMsgs::PyPoint_AsPoint(PyObject* py_point){
+geometry_msgs::msg::Point pyif::GeoMsgs::PyPoint_AsPoint(PyObject* py_point){
     geometry_msgs::msg::Point cppPoint = geometry_msgs::msg::Point();
 
     cppPoint.x = PyFloat_AsDouble(PyObject_GetAttrString(py_point, "_x"));
@@ -42,9 +39,9 @@ geometry_msgs::msg::Point GeoMsgs::PyPoint_AsPoint(PyObject* py_point){
     return cppPoint;
 }
 
-PyObject* GeoMsgs::PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* py_point = NULL) {
+PyObject* pyif::GeoMsgs::PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, PyObject* py_point) {
     if (py_point == NULL) {
-        PyObject* point_class = NULL;
+        PyObject* point_class;
         point_class = PyMap::GetFunction("geometry_msgs.msg", "Point");
 
         py_point = PyObject_CallObject(point_class, NULL);
@@ -58,7 +55,7 @@ PyObject* GeoMsgs::PyPoint_FromPoint(const geometry_msgs::msg::Point& cppPoint, 
     return py_point;
 }
 
-geometry_msgs::msg::Quaternion GeoMsgs::PyOrientation_AsOrientation(PyObject* py_orientation) {
+geometry_msgs::msg::Quaternion pyif::GeoMsgs::PyOrientation_AsOrientation(PyObject* py_orientation) {
     geometry_msgs::msg::Quaternion cpp_orientation = geometry_msgs::msg::Quaternion();
 
     cpp_orientation.x = PyFloat_AsDouble(PyObject_GetAttrString(py_orientation, "_x"));
@@ -69,9 +66,9 @@ geometry_msgs::msg::Quaternion GeoMsgs::PyOrientation_AsOrientation(PyObject* py
     return cpp_orientation;
 }
 
-PyObject* GeoMsgs::PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cpp_orientation, PyObject* py_orientation = NULL) {
+PyObject* pyif::GeoMsgs::PyOrientation_FromOrientation(const geometry_msgs::msg::Quaternion& cpp_orientation, PyObject* py_orientation) {
     if (py_orientation == NULL) {
-        PyObject* quaternion_class = NULL;
+        PyObject* quaternion_class;
         quaternion_class = PyMap::GetFunction("geometry_msgs.msg", "Quaternion");
 
         py_orientation = PyObject_CallObject(quaternion_class, NULL);
@@ -86,7 +83,7 @@ PyObject* GeoMsgs::PyOrientation_FromOrientation(const geometry_msgs::msg::Quate
     return py_orientation;
 }
 
-geometry_msgs::msg::Pose GeoMsgs::PyPose_AsPose(PyObject* py_pose) {
+geometry_msgs::msg::Pose pyif::GeoMsgs::PyPose_AsPose(PyObject* py_pose) {
     geometry_msgs::msg::Pose cpp_pose = geometry_msgs::msg::Pose();
 
     cpp_pose.position = PyPoint_AsPoint(PyObject_GetAttrString(py_pose, "_position"));
@@ -95,9 +92,9 @@ geometry_msgs::msg::Pose GeoMsgs::PyPose_AsPose(PyObject* py_pose) {
     return cpp_pose;
 }
 
-PyObject* GeoMsgs::PyPose_FromPose(const geometry_msgs::msg::Pose& cpp_pose, PyObject* py_pose = NULL) {
+PyObject* pyif::GeoMsgs::PyPose_FromPose(const geometry_msgs::msg::Pose& cpp_pose, PyObject* py_pose) {
     if (py_pose == NULL) {
-        PyObject* pose_class = NULL;
+        PyObject* pose_class;
         pose_class = PyMap::GetFunction("geometry_msgs.msg", "Pose");
 
         py_pose = PyObject_CallObject(pose_class, NULL);
@@ -110,7 +107,7 @@ PyObject* GeoMsgs::PyPose_FromPose(const geometry_msgs::msg::Pose& cpp_pose, PyO
     return py_pose;
 }
 
-geometry_msgs::msg::PoseStamped GeoMsgs::PyPoseStamped_AsPoseStamped(PyObject* py_pose_stamped){
+geometry_msgs::msg::PoseStamped pyif::GeoMsgs::PyPoseStamped_AsPoseStamped(PyObject* py_pose_stamped){
     geometry_msgs::msg::PoseStamped cpp_pose_stamped = geometry_msgs::msg::PoseStamped();
 
     cpp_pose_stamped.header = StdMsgs::PyHeader_AsHeader(PyObject_GetAttrString(py_pose_stamped, "_header"));
@@ -120,9 +117,9 @@ geometry_msgs::msg::PoseStamped GeoMsgs::PyPoseStamped_AsPoseStamped(PyObject* p
     return cpp_pose_stamped;
 }
 
-PyObject* GeoMsgs::PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cpp_pose_stamped, PyObject* py_pose_stamped = NULL) {
+PyObject* pyif::GeoMsgs::PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseStamped& cpp_pose_stamped, PyObject* py_pose_stamped) {
     if (py_pose_stamped == NULL) {
-        PyObject* pose_stamped_class = NULL;
+        PyObject* pose_stamped_class;
         pose_stamped_class = PyMap::GetFunction("geometry_msgs.msg", "PoseStamped");
 
         py_pose_stamped = PyObject_CallObject(pose_stamped_class, NULL);
@@ -135,7 +132,7 @@ PyObject* GeoMsgs::PyPoseStamped_FromPoseStamped(const geometry_msgs::msg::PoseS
     return py_pose_stamped;
 }
 
-geometry_msgs::msg::Twist GeoMsgs::PyTwist_AsTwist(PyObject* py_twist){
+geometry_msgs::msg::Twist pyif::GeoMsgs::PyTwist_AsTwist(PyObject* py_twist){
     geometry_msgs::msg::Twist cpp_twist = geometry_msgs::msg::Twist();
 
     cpp_twist.linear = PyVector3_AsVector3(PyObject_GetAttrString(py_twist, "_linear"));
@@ -144,7 +141,7 @@ geometry_msgs::msg::Twist GeoMsgs::PyTwist_AsTwist(PyObject* py_twist){
     return cpp_twist;
 }
 
-PyObject* GeoMsgs::PyTwist_FromTwist(const geometry_msgs::msg::Twist& cpp_twist, PyObject* py_twist = NULL) {
+PyObject* pyif::GeoMsgs::PyTwist_FromTwist(const geometry_msgs::msg::Twist& cpp_twist, PyObject* py_twist) {
     if (py_twist == NULL) {
         PyObject* twist_class = pyif::PyMap::GetFunction("geometry_msgs.msg", "Twist");
 
@@ -158,7 +155,7 @@ PyObject* GeoMsgs::PyTwist_FromTwist(const geometry_msgs::msg::Twist& cpp_twist,
     return py_twist;
 }
 
-geometry_msgs::msg::TwistStamped GeoMsgs::PyTwistStamped_AsTwistStamped(PyObject* py_twist_stamped){
+geometry_msgs::msg::TwistStamped pyif::GeoMsgs::PyTwistStamped_AsTwistStamped(PyObject* py_twist_stamped){
     geometry_msgs::msg::TwistStamped cpp_twist_stamped = geometry_msgs::msg::TwistStamped();
 
     if (py_twist_stamped != NULL) {
@@ -169,9 +166,9 @@ geometry_msgs::msg::TwistStamped GeoMsgs::PyTwistStamped_AsTwistStamped(PyObject
     return cpp_twist_stamped;
 }
 
-PyObject* GeoMsgs::PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cpp_twist_stamped, PyObject* py_twist_stamped = NULL) {
+PyObject* pyif::GeoMsgs::PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::TwistStamped& cpp_twist_stamped, PyObject* py_twist_stamped) {
     if (py_twist_stamped == NULL) {
-        PyObject* twist_stamped_class = NULL;
+        PyObject* twist_stamped_class;
         twist_stamped_class = pyif::PyMap::GetFunction("geometry_msgs.msg", "TwistStamped");
 
         py_twist_stamped = PyObject_CallObject(twist_stamped_class, NULL);
@@ -183,7 +180,3 @@ PyObject* GeoMsgs::PyTwistStamped_FromTwistStamped(const geometry_msgs::msg::Twi
 
     return py_twist_stamped;
 }
-
-} // namespace pyif
-
-#endif // PYIF_GEOMETRY_MSGS_HPP

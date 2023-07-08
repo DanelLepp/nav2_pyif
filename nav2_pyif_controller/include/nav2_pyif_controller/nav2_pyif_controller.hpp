@@ -14,11 +14,12 @@ class PYIFController : public nav2_core::Controller
         void configure(
             const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
             std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
-            std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmapRos) override;
-
+            std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros) override;
 
         void cleanup() override;
+
         void activate() override;
+
         void deactivate() override;
 
         geometry_msgs::msg::TwistStamped computeVelocityCommands(

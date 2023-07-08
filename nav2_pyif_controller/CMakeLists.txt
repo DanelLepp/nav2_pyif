@@ -7,18 +7,14 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(nav2_pyif REQUIRED)
 find_package(nav2_common REQUIRED)
 find_package(nav2_core REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(PythonLibs REQUIRED)
 
 nav2_package()
 
 set(library_name nav2_pyif_controller)
-
-add_compile_definitions(
-  PYTHON_LIB="${PYTHON_LIBRARIES}"
-)
 
 include_directories(
   include
@@ -26,6 +22,7 @@ include_directories(
 )
 
 set(dependencies
+  nav2_pyif
   nav2_common
   nav2_core
   pluginlib
