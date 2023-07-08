@@ -6,6 +6,8 @@ Porting Python code to C++ is often complicated and separating the planner into 
 
 The Nav 2 PYIF provides tools for non-invasive integration of Python-based motion planners as native Nav 2 C++ plugins. 
 
+[See more info.](https://ims.ut.ee/www-public2/at/2023/bsc/atprog-bakalaureuset55-loti.05.029-danel-leppenen-text-20230520.pdf)
+
 ## Requirements
 * Ubuntu 22.04.1 LTS
 * ROS Humble Distribution
